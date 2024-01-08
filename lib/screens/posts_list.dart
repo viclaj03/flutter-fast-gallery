@@ -1,26 +1,104 @@
+
+
+import 'dart:ui';
+
+import 'package:fastgalery/model/post.dart';
 import 'package:fastgalery/providers/post_data.dart';
 import 'package:fastgalery/screens/form_post.dart';
 import 'package:fastgalery/screens/post_show.dart';
+import 'package:fastgalery/screens/posts_list_like.dart';
+import 'package:fastgalery/screens/profile.dart';
+import 'package:fastgalery/screens/registre.dart';
+import 'package:fastgalery/screens/search_screen.dart';
 import 'package:fastgalery/services/api_services.dart';
 import 'package:flutter/material.dart';
 
 ApiService apiService = ApiService();
 
-class PostsListScreen extends StatefulWidget {
+
+
+int _currentPage = 1;
+
+int _currentFollowPage = 1;
+
+class CustomSearchDelegate extends SearchDelegate<String> {
+
+
+  CustomSearchDelegate();
+
+
   @override
-  _PostsListScreenState createState() => _PostsListScreenState();
+  List<Widget> buildActions(BuildContext context) {
+    // Acciones para el campo de búsqueda (limpiar, cancelar, etc.)
+    return [IconButton(icon: Icon(Icons.clear), onPressed: () => query = "")];
+  }
+
+  @override
+  Widget buildLeading(BuildContext context) {
+    // Icono a la izquierda del campo de búsqueda (generalmente, un ícono de atrás)
+    return IconButton(
+      icon: AnimatedIcon(
+        icon: AnimatedIcons.menu_arrow,
+        progress: transitionAnimation,
+      ),
+      onPressed: () {
+        close(context, "");
+      },
+    );
+  }
+
+  @override
+  Widget buildResults(BuildContext context) {
+    // Muestra los resultados de la búsqueda
+    return SearchListScreen();
+  }
+
+  @override
+  Widget buildSuggestions(BuildContext context) {
+    // Muestra sugerencias mientras escribes en el campo de búsqueda
+    return Center(child: Text('Buscar post'));
+  }
+}
+
+
+
+int calculateCrossAxisCount(BuildContext context) {
+  double screenWidth = MediaQuery.of(context).size.width;
+
+  if (screenWidth < 300) {
+    return 1; // Dispositivos muy pequeños, una sola columna
+  } else if (screenWidth < 600) {
+    return 2; // Dispositivos pequeños, dos columnas
+  } else if (screenWidth < 800) {
+    return 3; // Dispositivos medianos, tres columnas
+  } else {
+    return 4; // Dispositivos grandes, cuatro columnas
+  }
+}
+
+class PostsListScreen extends StatefulWidget {
+  int id_user;
+  PostsListScreen(this.id_user);
+
+  @override
+  _PostsListScreenState createState() => _PostsListScreenState(id_user);
+
 }
 
 class _PostsListScreenState extends State<PostsListScreen> {
-  final ScrollController _scrollController = ScrollController();
-  final ApiService _apiService = ApiService();
+   final ScrollController _scrollController = ScrollController();
   final PostData _postData = PostData.fromJson('[]');
+   final PostData _postDataFollow = PostData.fromJson('[]');
+  int id_user;
+  _PostsListScreenState(this.id_user);
+   int _currentTabIndex = 1;
 
-  int _currentPage = 1; // Página inicial
+ // Página inicial
 
   @override
   void initState() {
     super.initState();
+
     _loadData();
     _scrollController.addListener(_scrollListener);
   }
@@ -32,8 +110,7 @@ class _PostsListScreenState extends State<PostsListScreen> {
   }
 
   void _scrollListener() {
-    if (_scrollController.position.pixels == _scrollController.position.maxScrollExtent ||
-        _scrollController.position.pixels == _scrollController.position.minScrollExtent) {
+    if (_scrollController.position.pixels == _scrollController.position.maxScrollExtent ) {
       // Llegaste al final de la lista, carga más datos
 
       _loadData();
@@ -41,14 +118,71 @@ class _PostsListScreenState extends State<PostsListScreen> {
   }
 
   Future<void> _loadData() async {
+
+    var jsonData;
+    var jsonDataFollow;
+    var newData;
+    var newDataFollow;
     try {
       print('pagina actual -> $_currentPage');
-      final jsonData = await _apiService.getImageList(_currentPage);
-      final newData = PostData.fromJson(jsonData);
-      if (newData.getSize() > 0) {
+      print('pagina actual follow -> $_currentFollowPage');
+      if(_currentTabIndex == 1){
+         jsonData = await apiService.getImageList(_currentPage);
+          newData = PostData.fromJson(jsonData);
+
+         if (newData.getSize() > 0) {
+           setState(() {
+             PostData.addMoreData(_postData, newData);
+             _currentPage++;
+           });
+         } else {
+           print('sin posts');
+           ScaffoldMessenger.of(context).showSnackBar(
+             const SnackBar(
+               content: Text('Ya no hay más posts :(',),showCloseIcon: true,
+               backgroundColor: Colors.red,duration: Duration(seconds: 2),shape: StadiumBorder(),
+               behavior: SnackBarBehavior.floating,
+             ),
+           );
+         }
+
+      } else {
+         jsonDataFollow = await apiService.getImageListByFollowing(_currentFollowPage);
+          newDataFollow = PostData.fromJson(jsonDataFollow);
+
+         if ( newDataFollow.getSize() > 0) {
+           setState(() {
+
+               PostData.addMoreData(_postDataFollow, newDataFollow);
+               _currentFollowPage++;
+
+
+           });
+         } else {
+           print('sin posts');
+           ScaffoldMessenger.of(context).showSnackBar(
+             const SnackBar(
+               content: Text('Ya no hay más posts :(',),showCloseIcon: true,
+               backgroundColor: Colors.red,duration: Duration(seconds: 2),shape: StadiumBorder(),
+               behavior: SnackBarBehavior.floating,
+             ),
+           );
+         }
+
+      }
+
+
+
+      /*if (newData.getSize() > 0 || newDataFollow.getSize() > 0) {
         setState(() {
-          PostData.addMoreData(_postData, newData);
-          _currentPage++;
+          if(_currentTabIndex == 1){
+            PostData.addMoreData(_postData, newData);
+            _currentPage++;
+          } else {
+            PostData.addMoreData(_postDataFollow, newDataFollow);
+            _currentFollowPage++;
+          }
+
         });
       } else {
         print('sin posts');
@@ -59,9 +193,10 @@ class _PostsListScreenState extends State<PostsListScreen> {
             behavior: SnackBarBehavior.floating,
           ),
         );
-      }
+      }*/
+
+
     } catch (e) {
-      // Manejar el error
       print('Error al cargar datos: $e');
     }
 
@@ -70,54 +205,207 @@ class _PostsListScreenState extends State<PostsListScreen> {
   Future<void> _refresh() async {
     // Lógica de actualización al hacer "pull-to-refresh"
     _currentPage = 1;
-    _postData.Clear(); // Asegúrate de limpiar la lista actual
+    _currentFollowPage = 1;
+    _postData.Clear();
+    _postDataFollow.Clear();// Asegúrate de limpiar la lista actual
     await _loadData();
   }
 
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return DefaultTabController(length: 2, initialIndex: 1, child:  Scaffold(
+      drawer: Drawer(
+          child:ListView(
+            // Important: Remove any padding from the ListView.
+              padding: EdgeInsets.zero,
+              children:  [
+                const DrawerHeader(
+                  padding: EdgeInsets.zero,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment(0.8, 1),
+                        colors: <Color>[
+                          Color(0xff1f005c),
+                          Color(0xff002d60),
+                          Color(0xff015f87),
+                          Color(0xff4bb6c0),
+                    ],tileMode: TileMode.mirror),
+                    //color: Color(0xFF71B5EC),
+                  ),
+                  child:Text('FastGallery',style: TextStyle(fontSize: 50,color: Colors.white)),
+                ),
+
+                ListTile(
+                  title:Row(
+                    children: const [
+                      Icon(Icons.person,size: 45),  // Aquí puedes cambiar Icons.person por el icono que prefieras
+                      SizedBox(width: 10), // Añade un espacio entre el icono y el texto
+                      Text('Perfil',style: TextStyle(fontSize: 25),),
+                    ],
+                  ),
+                  onTap: (){
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => ProfileScreen(id_user: id_user)));
+                  },
+
+                ),
+                ListTile(
+                  title:Row(
+                    children: const [
+                      Icon(Icons.star,size: 45,color: Colors.amber),  // Aquí puedes cambiar Icons.person por el icono que prefieras
+                      SizedBox(width: 10), // Añade un espacio entre el icono y el texto
+                      Text('Favoritos',style: TextStyle(fontSize: 25),),
+                    ],
+                  ),
+                  onTap: (){
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => ListImagesLikeScreen()));
+                  },
+
+                ),
+              ]
+          )
+      ),
       appBar: AppBar(
-        title: const Text('Fast Gallery'),
-      ),
-      body:   RefreshIndicator(
-        onRefresh: _refresh,
-        child: GridView.builder(
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2, // Puedes ajustar el número de columnas según tu preferencia
-            crossAxisSpacing: 8.0, // Espaciado horizontal entre elementos
-            mainAxisSpacing: 8.0, // Espaciado vertical entre elementos
-          ),
-          controller: _scrollController,
-          itemCount: _postData.getSize(),
-          itemBuilder: (context, index) {
+        bottom: TabBar(
+          onTap: (index) {
+            // Cambia el índice de la pestaña cuando se selecciona una nueva pestaña
+            setState(() {
 
-            final post = _postData.getPost(index);
-            return InkWell(
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  Hero(tag: 'imageHero${post.id}', child: Image.network('${apiService.baseUrl}/static/images/${post.image_url}'))
-                ],
-              ),
-              onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => PostScreen(post)));
-              },
-            );
+              _currentTabIndex = index;
+              _refresh();
+            });
           },
+          tabs: const [
+            Tab(
+              text: "Siguiendo",
+            ),
+            Tab(
+              text: "Todos",
+            )
+          ],
         ),
+        title: const Text('Fast Gallery'),
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.search),
+            onPressed: () {
+              // Implementa la lógica de búsqueda aquí
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => SearchListScreen()),
+              );
+              //showSearch(context: context, delegate: CustomSearchDelegate());
+            },
+          ),
+        ],
       ),
-
+      body:  TabBarView(children: [
+        imageListFollow(),
+        imageList(),
+      ],) ,
       floatingActionButton: FloatingActionButton(
           child: const Icon(Icons.add),
-          tooltip: 'Increment Counter',
+          tooltip: 'New Post',
           onPressed: () {
             Navigator.push(context,
                 MaterialPageRoute(builder: (context) => FormScreen()));
           }),
+    )  );
+  }
+
+
+
+
+
+
+   Widget imageListFollow(){
+     return RefreshIndicator(
+       onRefresh: _refresh,
+       child: GridView.builder(
+         physics: AlwaysScrollableScrollPhysics(),
+         gridDelegate:  SliverGridDelegateWithFixedCrossAxisCount(
+           crossAxisCount: calculateCrossAxisCount(context),
+           crossAxisSpacing: 8.0,
+           mainAxisSpacing: 8.0,
+         ),
+         controller: _scrollController,
+         itemCount: _postDataFollow.getSize(),
+         itemBuilder: (context, index) {
+           final post = _postDataFollow.getPost(index);
+           return  imageView(post);
+         },
+       ),
+     );
+   }
+
+
+  Widget imageList(){
+    return RefreshIndicator(
+      onRefresh: _refresh,
+      child: GridView.builder(
+        physics: AlwaysScrollableScrollPhysics(),
+        gridDelegate:  SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: calculateCrossAxisCount(context),
+          crossAxisSpacing: 8.0,
+          mainAxisSpacing: 8.0,
+        ),
+        controller: _scrollController,
+        itemCount: _postData.getSize(),
+        itemBuilder: (context, index) {
+          final post = _postData.getPost(index);
+          return  imageView(post);
+        },
+      ),
+    );
+  }
+
+  Widget imageView(Post post){
+    return InkWell(
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          Column(
+            textDirection: TextDirection.rtl,
+            children: <Widget>[
+              Expanded(
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(10),
+
+                  child: !post.NSFW?ImageFiltered(
+                      imageFilter: post.NSFW? ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0):ImageFilter.blur(sigmaX: 0, sigmaY: 0),
+                      child:Hero(
+                          tag:'imageHero${post.id}',
+                          child:Image.network(
+                            '${apiService.baseUrl}/static/images_render/${post.image_url_ligere}',
+                          ))):
+                  ColorFiltered(
+                      colorFilter: ColorFilter.mode(Color(0xABD7322F), BlendMode.lighten),
+                      child:
+                      ImageFiltered(
+                          imageFilter: post.NSFW? ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0):ImageFilter.blur(sigmaX: 0, sigmaY: 0),
+                          child:Hero(
+                              tag:'imageHero${post.id}',
+                              child:Image.network(
+                                '${apiService.baseUrl}/static/images_render/${post.image_url_ligere}',)
+                          )
+                      )
+                  ),
+                ),
+              ),
+              Text(post.title) ,
+            ],
+          )
+        ],
+      ),
+      onTap: () {
+        Navigator.push(context, MaterialPageRoute(builder: (context) => PostScreen(post)));
+      },
     );
   }
 }
+
+
+
 
 

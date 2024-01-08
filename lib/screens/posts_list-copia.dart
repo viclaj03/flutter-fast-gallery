@@ -66,7 +66,12 @@ class _GaleryState extends State<Galery> {
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 1),
       itemBuilder: (context,index){
         return InkWell(
-          child:Image.network('${apiService.baseUrl}/static/images/${_postData.getPost(index).image_url}'),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(100),
+            child: Image.network(
+                '${apiService.baseUrl}/static/images_render/${_postData.getPost(index).image_url_ligere}'
+            ),
+          ),
           onTap: (){
             Navigator.push(context, MaterialPageRoute(builder: (context)=>PostScreen(_postData.getPost(index))));
           },

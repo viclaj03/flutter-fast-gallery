@@ -1,8 +1,11 @@
 import 'dart:convert';
 
+import 'package:fastgalery/screens/home.dart';
+import 'package:fastgalery/screens/post_show.dart';
 import 'package:fastgalery/screens/posts_list.dart';
 import 'package:fastgalery/services/api_services.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_downloader/flutter_downloader.dart';
 import 'screens/login.dart';
 
 ApiService apiService = ApiService();
@@ -20,7 +23,13 @@ Future<String?> usernameLogin() async{
 }
 
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await FlutterDownloader.initialize(
+      debug: true // Configura esto según tus necesidades (puedes cambiarlo a false en producción)
+  );
+
+
   runApp(MyApp());
 }
 
@@ -38,10 +47,9 @@ class MyApp extends StatelessWidget {
       ),
       darkTheme: ThemeData(
         brightness: Brightness.dark,
-        /* dark theme settings */
       ),
       themeMode: ThemeMode.system,
-      home: FutureBuilder<String?>(
+      home: /*FutureBuilder<String?>(
         future: usernameLogin(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -56,10 +64,13 @@ class MyApp extends StatelessWidget {
             return username != null ? PostsListScreen() : LoginScreen();
           }
         },
-      ),
+      ),*/HomeScreen(),
+      initialRoute: '/',
       routes: {
-        'login': (context)=> const LoginScreen(),
-        'PostsListScreen': (context) => PostsListScreen(),
+
+        '/login': (context)=> const LoginScreen(),
+        '/PostsListScreen': (context) => PostsListScreen(1),
+
       },
     );
   }

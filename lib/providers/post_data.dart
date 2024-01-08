@@ -14,7 +14,7 @@ class PostData{
 //le paso el json y obtengo una lista de posts
   factory PostData.fromJson(String jsonData){
     
-    List<dynamic> list = json.decode(jsonData);
+    List<dynamic> list = json.decode( utf8.decode(jsonData.codeUnits));
 
     List<Post> postList = list.map((e) => Post.fromMap(e)).toList();
     return PostData._(postList);

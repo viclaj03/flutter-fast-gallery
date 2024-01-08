@@ -39,6 +39,27 @@ dependencies:
   shared_preferences: ^2.2.2
   image_picker: ^1.0.4
   readmore: ^2.2.0
+  dio: ^5.3.4
+  path_provider: ^2.1.1
+  image_gallery_saver: ^2.0.3
+  permission_handler: ^11.0.1
+  like_button: ^2.0.5
+  #photo_view: ^0.14.0
+  flutter_downloader: ^1.10.5
+  flutter_launcher_icons: ^0.13.1
+  full_screen_image: ^2.0.0
+
+
+
+flutter_launcher_icons :
+  android: true
+  image_path: "assets/icon/1024.png"
+  adaptive_icon_background: "assets/icon/1024.png"
+  background_color: "#201022"
+  adaptive_icon_foreground: "assets/icon/1024.png"
+
+
+
 
 
 dev_dependencies:

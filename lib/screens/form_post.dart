@@ -1,9 +1,9 @@
 import 'dart:io';
 
 import 'package:fastgalery/model/post.dart';
+import 'package:fastgalery/screens/posts_list.dart';
 import 'package:fastgalery/services/api_services.dart';
-import 'package:fastgalery/screens/post_show.dart';
-//import 'package:fastgalery/screens/posts_list.dart';
+
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
@@ -12,16 +12,24 @@ import 'package:http/http.dart' as http;
 String titulo = '';
 String descripcion = '';
 bool nsfw = false;
+String tags = '';
 XFile? _imageFile;
 
-class FormScreen extends StatelessWidget {
+
+
+
+
+
+
+class FormScreen extends StatelessWidget  {
   const FormScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return
+      Scaffold(
       appBar: AppBar(
-        title:  Text("New Post $titulo"),
+        title:  Text("New Post"),
         backgroundColor: Colors.green[700],
         foregroundColor: Colors.black,
       ),
@@ -118,8 +126,8 @@ class _formularioState extends State<formulario> {
                 return 'El contenido es obligatorio';
               }
 
-              if (value.length >= 250) {
-                return 'debes contener menos de 250 cracteres';
+              if (value.length >= 500) {
+                return 'debes contener menos de 500 characters ${value.length}';
               }
               //todo limitar el enumero de linea
               int newlines = value.split('\n').length - 1;
@@ -130,6 +138,36 @@ class _formularioState extends State<formulario> {
               return null;
             },
           ),
+
+          const Text(
+            "Tags:",
+            style: TextStyle(fontSize: 18),
+          ),
+          TextFormField(
+            decoration: const InputDecoration(
+              hintText: 'tags descriptivas separadas por comas',
+            ),
+            maxLines: 1,
+            initialValue: '',
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'El contenido es obligatorio';
+              }
+
+              if (value.length >= 500) {
+                return 'debes contener menos de 500 characters ${value.length}';
+              }
+              //todo limitar el enumero de linea
+              int newlines = value.split('\n').length - 1;
+              if (newlines > 1) {
+                return 'maximo 2 saltos de lineas';
+              }
+              tags = value;
+              return null;
+            },
+          ),
+
+
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
@@ -180,6 +218,7 @@ class _formularioState extends State<formulario> {
                       'title': titulo,
                       'description': descripcion,
                       'NSFW': nsfw,
+                      'tags':tags
                     };
 
                     if (_imageFile != null) {
@@ -199,14 +238,14 @@ class _formularioState extends State<formulario> {
                           ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(content: Text('Imagen subida ${response['title']}'), backgroundColor: Colors.green));
 
-                          Navigator.push(context, MaterialPageRoute(builder: (context)=>PostScreen(Post.fromMap(response))));
+                          Navigator.pop(context);
 
                         }
                       } catch (error) {
                         print(error);
                         // Muestra un mensaje de error si la autenticación falla
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Error al subir el post'), backgroundColor: Colors.red),
+                          SnackBar(content: Text('Error al subir el post:$error'), backgroundColor: Colors.red),
                         );
                       }
                     } else{
@@ -224,3 +263,5 @@ class _formularioState extends State<formulario> {
     );
   }
 }
+
+
