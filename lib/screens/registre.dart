@@ -15,6 +15,8 @@ String emailInput = "";
 
 String passwordInput = "";
 
+bool invisiblePassword = true;
+
 
 
 class RegistreScreen extends StatefulWidget {
@@ -36,13 +38,23 @@ class _RegistreScreenState extends State<RegistreScreen> {
 
     return  Scaffold(
         appBar: AppBar(title: const Text('Registre')),
-        body: Form(
+        body: SingleChildScrollView(
+    child: Form(
           key: _formKey,
           child: Padding(
             padding: const EdgeInsets.all(20.0),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(10000002),
+                  child:
+                  Image.asset('assets/icon/1024.png',scale: 5),
+                ),
+                const SizedBox(
+                  height: 50,
+                ),
                 _usernamInput(),
                 _eMailInput(),
                 _passwordInput(),
@@ -51,10 +63,9 @@ class _RegistreScreenState extends State<RegistreScreen> {
             ),
           ),
         ),
+        ),
       );
   }
-
-
 
 
   Widget _usernamInput(){
@@ -62,8 +73,8 @@ class _RegistreScreenState extends State<RegistreScreen> {
       margin: EdgeInsets.only(bottom: 16.0),
       child: TextFormField(
         decoration: InputDecoration(
-            labelText: 'User',
-            hintText: 'Whrite your email address',
+            labelText: 'User Name',
+            hintText: 'Whrite your User name',
             border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10.0)
             )
@@ -87,18 +98,12 @@ class _RegistreScreenState extends State<RegistreScreen> {
 
 
 
-
-
-
-
-
-
   Widget _eMailInput(){
     return Container(
       margin: EdgeInsets.only(bottom: 16.0),
       child: TextFormField(
         decoration: InputDecoration(
-            labelText: 'User',
+            labelText: 'Email',
             hintText: 'Whrite your email address',
             border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10.0)
@@ -106,8 +111,8 @@ class _RegistreScreenState extends State<RegistreScreen> {
         ),
         validator: (value){
           if(value == null || value.isEmpty){
-            return'Sorry, user cant \'t be empty';
-            //todo ejercicio3 verificamos que es un email valido
+            return'Sorry, email cant \'t be empty';
+
           } else if(!RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
               .hasMatch(value)) {
             return 'invalid email';
@@ -123,22 +128,29 @@ class _RegistreScreenState extends State<RegistreScreen> {
     return Container(
       margin: EdgeInsets.only(bottom: 16.0),
       child: TextFormField(
-        obscureText: true,
+        obscureText: invisiblePassword,
         obscuringCharacter: '*',
         decoration: InputDecoration(
             hintText: 'Write your password',
             labelText: 'Password',
             border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10.0)
-            )
+            ),
+          suffixIcon: IconButton(
+            icon: invisiblePassword? const Icon(Icons.visibility_off, color: Colors.black,):const Icon(Icons.visibility, color: Colors.black,),
+            onPressed: () {
+              setState(() {
+                invisiblePassword = !invisiblePassword;
+              });
+            },
+          ),
         ),
         validator: (value){
           if(value == null || value.isEmpty){
             return 'Sorry, password can not be empty';
           }
-//todo Ejercicio 3 verificamos que tine minimo  una mayuscula, numero y simbolo ademas del tamaño
-          if (!RegExp(r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@#\$&*~]).{8,}$').hasMatch(value)) {
-            return  'Enter valid password';
+          if (!RegExp(r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9]).{8,}$').hasMatch(value)) {
+            return  'inValid password [8 digitos, mayusculas y minusculas \ny numeros]';
           }
           passwordInput = value;
           return null;
@@ -158,11 +170,13 @@ class _RegistreScreenState extends State<RegistreScreen> {
             // Llamada a la API para autenticar al usuario y obtener el token
             try {
               // Realiza la solicitud de inicio de sesión a la API y obtén el token
-              String token = await resgistreUser(emailInput, passwordInput);
+              int id = await resgistreUser(emailInput, passwordInput);
 
               if(!context.mounted) return;
-              Navigator.pushNamedAndRemoveUntil(context, 'PostsListScreen',
-                    (route) => false,);
+
+
+
+              Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=>PostsListScreen(id)),(route) => false);
               //Navigator.push(context, MaterialPageRoute(builder: (context)=>PostScreen()));
               // Muestra un mensaje de bienvenida con el token
               ScaffoldMessenger.of(context).showSnackBar(
@@ -189,7 +203,7 @@ class _RegistreScreenState extends State<RegistreScreen> {
 
 
 
-  Future<String> resgistreUser(String email, String password) async {
+  Future<int> resgistreUser(String email, String password) async {
 
     final response = await http.post(
         Uri.parse('http://192.168.1.148:8000/registre'),
@@ -206,8 +220,9 @@ class _RegistreScreenState extends State<RegistreScreen> {
     if (response.statusCode == 200) {
       final token =  json.decode(response.body);
       await saveToken(token['access_token']);
+      await saveIdUser(token['id']);
       print(response.body);
-      return token['access_token'];
+      return token['id'];
     } else {
       final respuesta =  json.decode(response.body);
       // Si la solicitud falla, lanza una excepción

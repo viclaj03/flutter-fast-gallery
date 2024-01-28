@@ -1,20 +1,23 @@
+
 import 'dart:io';
 import 'dart:isolate';
 import 'dart:typed_data';
 import 'dart:ui';
 
+import 'package:fastgalery/model/comment.dart';
 import 'package:fastgalery/model/post.dart';
+import 'package:fastgalery/providers/comment_data.dart';
 import 'package:fastgalery/providers/shared_preferences.dart';
 import 'package:fastgalery/screens/form_post_update.dart';
 import 'package:fastgalery/screens/profile.dart';
 import 'package:fastgalery/services/api_services.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
+import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:full_screen_image/full_screen_image.dart';
 
 import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:like_button/like_button.dart';
-import 'package:permission_handler/permission_handler.dart';
 
 import 'package:readmore/readmore.dart';
 
@@ -22,16 +25,30 @@ import 'package:dio/dio.dart';
 
 import 'package:path_provider/path_provider.dart';
 
+import 'package:intl/intl.dart';
+
+import 'package:flutter/services.dart';
+
+
+
+
+
 
 final ApiService apiService = ApiService();
+
+final TextEditingController commentController = TextEditingController();
+
+
 
 
 
 
 Future<Map<String, dynamic>> getIdUserAndPost(int id) async {
-  final postJson = await apiService.getImage(id);
+
+  final postJson = await apiService.getPost(id);
   final userId = await getIdUser();
   Post _post = Post.fromJsonString(postJson);
+
   return {'userId': userId, 'post': _post};
 }
 
@@ -81,6 +98,13 @@ Future<void> reportPost(BuildContext context, int id)async{
   );
 }
 
+Future<Comment> addComment(BuildContext context, int id,String comment)async{
+  var respuesta = await apiService.addComment(id, comment);
+  print(respuesta);
+
+  return Comment.fromJsonString(respuesta);
+}
+
 
 Future<void> downloadAndSaveImage(String imageUrl,String nameImage, BuildContext context) async {
   try {
@@ -121,7 +145,7 @@ void downloadCallback(String id, DownloadTaskStatus status, int progress) {
 }
 
 //todo eleiminar post
-Future<void> deletePost(BuildContext context,Post post) async {
+Future<void> deletePost(BuildContext context,Post post, ) async {
   return showDialog<void>(
     context: context,
     builder: (BuildContext context) {
@@ -135,8 +159,7 @@ Future<void> deletePost(BuildContext context,Post post) async {
               Navigator.of(context).pop();
               apiService.deleteImage(post.id);
 
-              Navigator.pop(context);
-              Navigator.pushReplacementNamed(context, '/PostsListScreen');
+              Navigator.pop(context,post.id);
               ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text('Imagen Eliminada '), backgroundColor: Colors.green));
             },
@@ -144,10 +167,7 @@ Future<void> deletePost(BuildContext context,Post post) async {
           ),
           TextButton(
             onPressed: () {
-              // Cerrar el cuadro de diálogo sin realizar la acción
               Navigator.of(context).pop();
-              // Agrega aquí la lógica para la acción de cancelación
-
             },
             child: Text('No'),
           ),
@@ -161,6 +181,7 @@ Future<void> deletePost(BuildContext context,Post post) async {
 
 class PostScreen extends StatelessWidget {
   final Post _post;
+
   const PostScreen(this._post, {Key? key})
       :super(key: key);
   @override
@@ -168,53 +189,55 @@ class PostScreen extends StatelessWidget {
     //_init();
     return
       Scaffold(
-          extendBodyBehindAppBar: true,
-          appBar: AppBar(
-            iconTheme: const IconThemeData(
-              color: Colors.black,
-              size: 28.0,
-            ),
-            leading: Padding(
-              padding: const EdgeInsets.all(8.0), // Ajusta el espaciado del icono
-              child: Container(
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.grey.withOpacity(0.5), // Color gris transparente
-                ),
-                child: IconButton(
-                  icon: Icon(Icons.arrow_back),
-                  onPressed: () {
-                    Navigator.pop(context,'backform');
-                  },
-                  color: Colors.white,
-                ),
+        extendBodyBehindAppBar: true,
+        appBar: AppBar(
+          iconTheme: const IconThemeData(
+            color: Colors.black,
+            size: 28.0,
+          ),
+          leading: Padding(
+            padding: const EdgeInsets.all(8.0), // Ajusta el espaciado del icono
+            child: Container(
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.grey.withOpacity(0.5), // Color gris transparente
+              ),
+              child: IconButton(
+                icon: Icon(Icons.arrow_back),
+                onPressed: () {
+                  Navigator.pop(context,'backform');
+                },
+                color: Colors.white,
               ),
             ),
-            backgroundColor: Colors.transparent, // Establece el color de fondo de la AppBar como transparente
-            elevation: 0,
           ),
-          body:
+          backgroundColor: Colors.transparent, // Establece el color de fondo de la AppBar como transparente
+          elevation: 0,
+        ),
+        body:
 
-          FutureBuilder(
-            future:   getIdUserAndPost(_post.id),//apiService.getImage(_post.id),
-            builder: (BuildContext context, AsyncSnapshot<Map<String, dynamic>>snapshot) {
-              if (snapshot.hasData) {
-                final userId = snapshot.data!['userId'];
-                final Post _post = snapshot.data!['post'];
-                return _imageContent(_post,userId);
-              } else {
-                return const Center(child: CircularProgressIndicator());
-              }
-            },
-          )
-        // _imageContent(_post),
+        FutureBuilder(
+          future:   getIdUserAndPost(_post.id),//apiService.getImage(_post.id),
+          builder: (BuildContext context, AsyncSnapshot<Map<String, dynamic>>snapshot) {
+            if (snapshot.hasData) {
+              final userId = snapshot.data!['userId'];
+              final Post _post = snapshot.data!['post'];
+              return _imageContent(_post,userId,context  );
+            } else {
+              return const Center(child: CircularProgressIndicator());
+            }
+          },
+        ),
       );
   }
 }
 
 
 
-Widget _imageContent(Post _post, userId){
+
+
+
+Widget _imageContent(Post _post, userId, BuildContext context){
   return SingleChildScrollView(child:Column(
     mainAxisAlignment: MainAxisAlignment.start, // Esto alinea los widgets en la parte superior
     crossAxisAlignment: CrossAxisAlignment.center,
@@ -241,11 +264,228 @@ Widget _imageContent(Post _post, userId){
           labelStyle: TextStyle(color: Colors.white),
         )).toList(),
       ),
+      Divider(color: Colors.black,thickness: 0.8,indent: 20,endIndent: 20,)
+      ,
+      ElevatedButton(child: const Text('Show Comments'),
+        style:  ElevatedButton.styleFrom(backgroundColor: Colors.red,shape: StadiumBorder()),
+
+        onPressed: (){
+          showModalBottomSheet(context: context,
+              backgroundColor: Colors.transparent,
+              isScrollControlled: true,
+              builder: (BuildContext context) {
+
+                return Container(
+                  decoration: const BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.vertical( top:  Radius.circular(20), )
+                    //border: Border.all()
+                  ),
+                  height: 450,
+                  //color: Colors.white,
+                  child: CommentList( postId: _post.id,userId:  userId),
+                );
+              }
+          );
+        },
+      )
     ],
   ));
 }
 
 
+
+
+class CommentList extends StatefulWidget {
+
+  final postId;
+  final userId;
+  const CommentList({super.key, this.postId,this.userId});
+
+  @override
+  State<CommentList> createState() => _CommentListState(postId,userId);
+}
+
+class _CommentListState extends State<CommentList> {
+  final ScrollController _scrollController = ScrollController();
+  final CommentData _commentData = CommentData.fromJson('[]');
+  bool isKeyboardVisible = false;
+  final postId;
+  final userId;
+  _CommentListState(this.postId,this.userId);
+  int _currentPage = 1;
+  void _loadComments(CommentData commentData,int postId) async {
+    try {
+
+      final jsonData = await apiService.getComments(postId, _currentPage);
+
+      if(!jsonData.isEmpty) {
+        final newData = CommentData.fromJson(jsonData);
+        setState(() {
+          commentData.addData(newData.getComments());
+        });
+        _currentPage++;
+      }
+
+    } catch (e) {
+      print('Error al cargar comentarios: $e');
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    if(mounted) {
+      _loadComments(_commentData, postId);
+      _scrollController.addListener(_scrollListener);
+
+
+      KeyboardVisibilityController().onChange.listen((bool visible) {
+        if (mounted) {
+          setState(() {
+            isKeyboardVisible = visible;
+          });
+        }
+      });
+    }
+  }
+
+  void _scrollListener() {
+    if (_scrollController.position.pixels == _scrollController.position.maxScrollExtent ) {
+      // Llegaste al final de la lista, carga más datos
+
+      _loadComments(_commentData, postId);
+    }
+  }
+
+
+  @override
+  Widget build(BuildContext context) {
+    final FocusNode commentFocus = FocusNode();
+
+
+    void showOptionsComment(BuildContext context, int commentIndex, CommentData commentData, bool isOwner,) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  ListTile(
+                    title: Text('Copiar comentario al portapapeles'),
+                    onTap: () {
+                      Clipboard.setData(ClipboardData(text:_commentData.getComment(commentIndex).content));
+
+                      Navigator.pop(context);
+                    },
+                  ),
+                  if(isOwner)
+                    ListTile(
+                      title: Text('Eliminar',style: TextStyle(color: Colors.red)),
+                      onTap: () async {
+
+                        try{
+                          await apiService.deleteComment(_commentData.getComment(commentIndex).id);
+                          setState(() {
+                            _commentData.deleteCommentById(_commentData.getComment(commentIndex).id);
+                          });
+                        }catch(e){
+                          Navigator.pop(context);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('$e'), backgroundColor: Colors.red),
+                          );
+                        }
+
+                        Navigator.pop(context);
+                      },
+                    ),
+                  // Agrega más opciones si es necesario
+                ],
+              ),
+            ),
+          );
+        },
+      );
+    }
+
+    return
+      Column(
+        children: [
+          const Padding(
+              padding: const EdgeInsets.only(top: 15),
+              child:  Text('COMENTARIOS')),
+
+          Visibility(
+            visible: !isKeyboardVisible,
+            child:
+            Expanded(
+                child:ListView.builder(
+                  controller: _scrollController,
+                  itemCount: _commentData.getSize(),
+                  itemBuilder: (BuildContext context,int index){
+
+                    return
+                      GestureDetector(
+                        onLongPress: () {
+                          print('se presiono');
+                          showOptionsComment(context, index,_commentData,userId ==_commentData.getComment(index).user.id); // Pasa el índice del comentario a la función showModal
+                        },
+                        child: ListTile(
+                          title: Text('${_commentData.getComment(index).user.name} ${userId ==_commentData.getComment(index).user.id?"(tu)":"" }'),
+                          subtitle: Text(_commentData.getComment(index).content,style: TextStyle(fontSize: 18,color: Colors.black)),
+                          leading: const Icon(Icons.account_circle),
+                          trailing: Text(  '${DateFormat('dd-MM-yy').format(_commentData.getComment(index).created_at).toString()} '),
+                        ),
+                      );
+                  },
+                )
+            ),),
+
+          Divider(thickness: 1.5,color: Colors.black,),
+          Padding(
+              padding: const EdgeInsets.only(left: 15),
+              child:
+              TextField(
+                controller: commentController,
+
+                decoration: InputDecoration(
+                  hintText: 'new Comment',
+    border: OutlineInputBorder(
+    borderRadius: BorderRadius.circular(10.0)
+    ),
+                  suffixIcon: IconButton(
+                    icon: const Icon(Icons.send,color: Colors.red,),
+                    onPressed: () async {
+                      String newComment = commentController.text;
+                      if ( newComment != null && newComment.isNotEmpty ){
+                        print('--> $newComment');
+                        try{
+                          Comment comment = await addComment(context, postId, newComment);
+                          FocusScope.of(context).unfocus();
+                          _commentData.addComment(comment);
+                          commentController.text = "";
+                        }catch(e){
+                          print(e);
+                          Navigator.pop(context);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('$e'), backgroundColor: Colors.blueAccent));
+                        }
+                      } else {
+                        print("es null???");
+                      }
+                      //aqui me gustaria coger el value del form y pasarlo auna funcion
+                    },
+                  ),
+                ),
+              )
+          )
+        ],
+      )
+    ;
+  }
+}
 
 
 
@@ -270,11 +510,10 @@ class _ImageShowState extends State<ImageShow> {
 
 
         disposeLevel: DisposeLevel.High,    child:
-        InteractiveViewer(
-            boundaryMargin: const EdgeInsets.all(20.0),
-            //minScale: 0.1,
-            //maxScale: 1.6,
-            child:
+
+    //minScale: 0.1,
+    //maxScale: 1.6,
+
     Image.network('${apiService.baseUrl}/static/images/${post.image_url}',
         loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
           if (loadingProgress == null) {
@@ -284,7 +523,7 @@ class _ImageShowState extends State<ImageShow> {
             return Image.network('${apiService.baseUrl}/static/images_render/${post
                 .image_url_ligere}');
           }
-        }))
+        })
     )
 
     );
@@ -297,7 +536,8 @@ class _ImageShowState extends State<ImageShow> {
 class ActionBar extends StatelessWidget {
   final Post post;
   final int userId;
-  const ActionBar({super.key, required this.post, required this.userId});
+
+  const ActionBar({super.key,required this.post, required this.userId});
 
   @override
   Widget build(BuildContext context) {
@@ -305,10 +545,10 @@ class ActionBar extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         GestureDetector(
-            onTap: () {
-              // Navegar a ProfileScreen
-              Navigator.push(context, MaterialPageRoute(builder: (context) => ProfileScreen(id_user: post.user.id)));
-            },
+          onTap: () {
+            // Navegar a ProfileScreen
+            Navigator.push(context, MaterialPageRoute(builder: (context) => ProfileScreen(id_user: post.user.id)));
+          },
 
           child: Text('${post.user.name}',style: TextStyle(fontSize: 20)),
         ),
@@ -346,25 +586,25 @@ class ActionBar extends StatelessWidget {
                         )
                     ),
                     if(post.user.id == userId)
-                    PopupMenuItem<String>(
-                        value: 'Delete',
-                        child: Row(
-                          children: const <Widget>[
-                            Icon(Icons.delete,color: Colors.red),
-                            Text('Eliminar')
-                          ],
-                        )
-                    ),
+                      PopupMenuItem<String>(
+                          value: 'Delete',
+                          child: Row(
+                            children: const <Widget>[
+                              Icon(Icons.delete,color: Colors.red),
+                              Text('Eliminar')
+                            ],
+                          )
+                      ),
                     if(post.user.id == userId)
-                    PopupMenuItem<String>(
-                        value: 'Edit',
-                        child: Row(
-                          children: const <Widget>[
-                            Icon(Icons.edit,color: Colors.green) ,
-                            Text('Editar')
-                          ],
-                        )
-                    ),
+                      PopupMenuItem<String>(
+                          value: 'Edit',
+                          child: Row(
+                            children: const <Widget>[
+                              Icon(Icons.edit,color: Colors.green) ,
+                              Text('Editar')
+                            ],
+                          )
+                      ),
                     PopupMenuItem<String>(
                         value: 'Dowload',
                         child: Row(
@@ -379,7 +619,7 @@ class ActionBar extends StatelessWidget {
                         child: Row(
                           children: const <Widget>[
                             Icon(Icons.report,color: Colors.red) ,
-                            Text('Reportara',style: TextStyle(color: Colors.red),)
+                            Text('Reportar',style: TextStyle(color: Colors.red),)
                           ],
                         )
                     ),

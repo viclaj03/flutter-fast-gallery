@@ -28,6 +28,7 @@ class FormScreen extends StatelessWidget  {
   Widget build(BuildContext context) {
     return
       Scaffold(
+
       appBar: AppBar(
         title:  Text("New Post"),
         backgroundColor: Colors.green[700],
@@ -66,7 +67,9 @@ class _formularioState extends State<formulario> {
     return Form(
       key: _formKey,
 
-      child: Column(
+      child: Padding(
+        padding: const EdgeInsets.all(20.0),
+    child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
@@ -95,10 +98,19 @@ class _formularioState extends State<formulario> {
             "Title:",
             style: TextStyle(fontSize: 18),
           ),
+
+      Container(
+        margin: EdgeInsets.only(bottom: 16.0),
+          child:
           TextFormField(
             initialValue: '',
-            decoration: const InputDecoration.collapsed(
+            decoration:  InputDecoration(
+
               hintText: 'Un titulo breve pero descriptivo',
+                border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0)
+                )
+
             ),
             validator: (value) {
               if (value == null || value.isEmpty) {
@@ -110,14 +122,19 @@ class _formularioState extends State<formulario> {
               titulo = value;
               return null;
             },
-          ),
+          )
+      ),
           const Text(
             "Description:",
             style: TextStyle(fontSize: 18),
           ),
           TextFormField(
-            decoration: const InputDecoration(
+            decoration:  InputDecoration(
               hintText: 'Breve descripcion del contenido del post',
+                border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0)
+                )
+
             ),
             maxLines: 4,
             initialValue: '',
@@ -144,8 +161,11 @@ class _formularioState extends State<formulario> {
             style: TextStyle(fontSize: 18),
           ),
           TextFormField(
-            decoration: const InputDecoration(
-              hintText: 'tags descriptivas separadas por comas',
+            decoration:  InputDecoration(
+              hintText: 'tags descriptivos separados por comas',
+                border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0)
+                )
             ),
             maxLines: 1,
             initialValue: '',
@@ -242,7 +262,7 @@ class _formularioState extends State<formulario> {
 
                         }
                       } catch (error) {
-                        print(error);
+
                         // Muestra un mensaje de error si la autenticación falla
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(content: Text('Error al subir el post:$error'), backgroundColor: Colors.red),
@@ -260,6 +280,7 @@ class _formularioState extends State<formulario> {
           ),
         ],
       ),
+      )
     );
   }
 }

@@ -37,27 +37,37 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
 
     return Scaffold(
-        appBar: AppBar(title: const Text('FastGallery')),
-        body: Form(
-          key: _formKey,
-          child: Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: <Widget>[
-                const Spacer(),
-                _eMailInput(),
-                _passwordInput(),
-                _loginButton(),
-                const Spacer(),
-                 _registreButto(),
-
-              ],
+      appBar: AppBar(title: const Text('FastGallery')),
+      body: SingleChildScrollView(
+          child: Form(
+            key: _formKey,
+            child: Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: <Widget>[
+              ClipRRect(
+              borderRadius: BorderRadius.circular(10000002),
+                  child:
+                  Image.asset('assets/icon/1024.png',scale: 5),
+              ),
+                  const SizedBox(
+                    height: 50,
+                  ),
+                  _eMailInput(),
+                  _passwordInput(),
+                  _loginButton(),
+                  const SizedBox(
+                    height: 100,
+                  ),
+                  _registreButto(),
+                ],
+              ),
             ),
-          ),
-        ),
-      );
+          )
+      ),
+    );
   }
 
 
@@ -84,21 +94,28 @@ class _LoginScreenState extends State<LoginScreen> {
           return null;
         },
       ),
-
     );
   }
   Widget _passwordInput(){
     return Container(
       margin: EdgeInsets.only(bottom: 16.0),
       child: TextFormField(
-        obscureText: true,
+        obscureText: invisiblePassword,
         obscuringCharacter: '*',
         decoration: InputDecoration(
-            hintText: 'Write your password',
-            labelText: 'Password',
-            border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10.0)
-            )
+          hintText: 'Write your password',
+          labelText: 'Password',
+          border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10.0)
+          ),
+          suffixIcon: IconButton(
+            icon: invisiblePassword? const Icon(Icons.visibility_off, color: Colors.black,):const Icon(Icons.visibility, color: Colors.black,),
+            onPressed: () {
+              setState(() {
+                invisiblePassword = !invisiblePassword;
+              });
+            },
+          ),
         ),
         validator: (value){
           if(value == null || value.isEmpty){
@@ -158,12 +175,12 @@ class _LoginScreenState extends State<LoginScreen> {
 
 
         child: ElevatedButton(
-          child: const Text('Regitre'),
+          child: const Text('Registre'),
           onPressed:(){
             Navigator.push(context, MaterialPageRoute(builder: (context) => RegistreScreen()));
           },
           style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-    )
+        )
     );
   }
 
@@ -177,11 +194,11 @@ class _LoginScreenState extends State<LoginScreen> {
 
     final response = await http.post(
         Uri.parse('http://192.168.1.148:8000/login'),
-      body:{
+        body:{
 
-        'username': emailInput,
-        'password': passwordInput,
-      }
+          'username': emailInput,
+          'password': passwordInput,
+        }
     );
 
     if (response.statusCode == 200) {

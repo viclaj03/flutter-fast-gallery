@@ -16,9 +16,6 @@ ApiService apiService = ApiService();
 int _currentPage = 1;
 
 
-
-
-
 int calculateCrossAxisCount(BuildContext context) {
   double screenWidth = MediaQuery.of(context).size.width;
 
@@ -75,7 +72,7 @@ class _SearchListScreenState extends State<SearchListScreen> {
   void _onSearchChanged() {
     // Este método se ejecuta cada vez que el usuario escribe algo en el SearchBar
     // Actualizar la búsqueda aquí
-    print('999999999999999999999999999999999999999999999999999');
+
     _currentPage = 1; // Reiniciar la paginación al realizar una nueva búsqueda
     setState(() {
       query = _searchController.text; // Actualizar el valor de query
@@ -135,6 +132,7 @@ class _SearchListScreenState extends State<SearchListScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+
       appBar: AppBar(
         title: TextField(
           onEditingComplete: _onSearchChanged,

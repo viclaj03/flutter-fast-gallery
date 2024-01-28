@@ -31,15 +31,15 @@ class FormUpadateScreen extends StatelessWidget  {
   Widget build(BuildContext context) {
     return
       Scaffold(
-      appBar: AppBar(
-        title:  Text("actulizando: ${_post.title}"),
-        backgroundColor: Colors.green[700],
-        foregroundColor: Colors.black,
-      ),
-      body:  SingleChildScrollView(
-        child: Formulario( _post,old_rute),
-      ),
-    );
+        appBar: AppBar(
+          title:  Text("actulizando: ${_post.title}"),
+          backgroundColor: Colors.green[700],
+          foregroundColor: Colors.black,
+        ),
+        body:  SingleChildScrollView(
+          child: Formulario( _post,old_rute),
+        ),
+      );
   }
 }
 
@@ -66,185 +66,206 @@ class _FormularioState extends State<Formulario> {
   Widget build(BuildContext context) {
     bool _isSaving = false;
     return Form(
-      key: _formKey,
+        key: _formKey,
 
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
+        child:
+        Padding(
+          padding: const EdgeInsets.all(20.0),
+          child:
 
-
-                    Image.network(
-                  '${apiService.baseUrl}/static/images/${post.image_url}',
-                  //height: 280.0,
-                  //fit: BoxFit.cover,
-                ),
-
-
-           const Text(
-            "Title:",
-            style: TextStyle(fontSize: 18),
-          ),
-          TextFormField(
-            initialValue: post.title,
-            decoration: const InputDecoration.collapsed(
-              hintText: 'Un titulo breve pero descriptivo',
-            ),
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return 'El Titulo es obligatorio';
-              }
-              if (value.length < 4 || value.length >= 50) {
-                return 'debes contener menos de 50 cracteres y mas de 4 ';
-              }
-              titulo = value;
-              return null;
-            },
-          ),
-          const Text(
-            "Description:",
-            style: TextStyle(fontSize: 18),
-          ),
-          TextFormField(
-            decoration: const InputDecoration(
-              hintText: 'Breve descripcion del contenido del post',
-            ),
-            maxLines: 4,
-            initialValue: post.description,
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return 'El contenido es obligatorio';
-              }
-
-              if (value.length >= 500) {
-                return 'debes contener menos de 500 characters ${value.length}';
-              }
-              //todo limitar el enumero de linea
-              int newlines = value.split('\n').length - 1;
-              if (newlines > 2) {
-                return 'maximo 2 saltos de lineas';
-              }
-              descripcion = value;
-              return null;
-            },
-          ),
-
-          const Text(
-            "Tags:",
-            style: TextStyle(fontSize: 18),
-          ),
-          TextFormField(
-            decoration: const InputDecoration(
-              hintText: 'tags descriptivas separadas por comas',
-            ),
-            maxLines: 1,
-            initialValue: post.tags,
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return 'El contenido es obligatorio';
-              }
-
-              if (value.length >= 500) {
-                return 'debes contener menos de 500 characters ${value.length}';
-              }
-              //todo limitar el enumero de linea
-              int newlines = value.split('\n').length - 1;
-              if (newlines > 1) {
-                return 'maximo 2 saltos de lineas';
-              }
-              tags = value;
-              return null;
-            },
-          ),
-
-
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+          Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
+
+
+              Image.network(
+                '${apiService.baseUrl}/static/images/${post.image_url}',
+                //height: 280.0,
+                //fit: BoxFit.cover,
+              ),
+
+
               const Text(
-                "NSFW:",
+                "Title:",
                 style: TextStyle(fontSize: 18),
               ),
-              Checkbox(
-                activeColor: Colors.red,
-                checkColor: Colors.black,
-                value: post.NSFW,
-                onChanged: (bool? value) {
-                  setState(() {
-                    post.NSFW = !post.NSFW;
-                    nsfw = value!;
-                  });
+              Container(
+                margin: EdgeInsets.only(bottom: 16.0),
+                child:
+                TextFormField(
+                  initialValue: post.title,
+                  decoration:  InputDecoration(
+                    hintText: 'Un titulo breve pero descriptivo',
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10.0)
+                    ),
+
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'El Titulo es obligatorio';
+                    }
+                    if (value.length < 5 || value.length >= 50) {
+                      return 'debes contener menos de 50 cracteres y mas de 5, Actual: ${value.length} ';
+                    }
+                    titulo = value;
+                    return null;
+                  },
+                ),
+              ),
+              const Text(
+                "Description:",
+                style: TextStyle(fontSize: 18),
+              ),
+              TextFormField(
+                decoration:  InputDecoration(
+                  hintText: 'Breve descripcion del contenido del post',
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10.0)
+                  ),
+
+                ),
+                maxLines: 4,
+                initialValue: post.description,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'El contenido es obligatorio';
+                  }
+
+                  if (value.length >= 500) {
+                    return 'debes contener menos de 500 characters ${value.length}';
+                  }
+                  //todo limitar el enumero de linea
+                  int newlines = value.split('\n').length - 1;
+                  if (newlines > 2) {
+                    return 'maximo 2 saltos de lineas';
+                  }
+                  descripcion = value;
+                  return null;
                 },
               ),
 
-            ],
-          ),
+              const Text(
+                "Tags:",
+                style: TextStyle(fontSize: 18),
+              ),
+              TextFormField(
+                decoration:  InputDecoration(
+                  hintText: 'tags descriptivos separados por comas',
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10.0)
+                    )
+                ),
+                maxLines: 1,
+                initialValue: post.tags,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'El contenido es obligatorio';
+                  }
 
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.end,
-
-            children: <Widget>[
-              ElevatedButton(
-                child: const Text('Rsert  Form'),
-                onPressed: () {
-                  nsfw = false;
-                  _formKey.currentState!.reset();
-
-
-                  setState(() {
-
-                  });
+                  if (value.length >= 500) {
+                    return 'debes contener menos de 500 characters ${value.length}';
+                  }
+                  //todo limitar el enumero de linea
+                  int newlines = value.split('\n').length - 1;
+                  if (newlines > 1) {
+                    return 'maximo 2 saltos de lineas';
+                  }
+                  tags = value;
+                  return null;
                 },
               ),
-              ElevatedButton(
-                child: const Text('SAVE'),
-                onPressed: _isSaving?null :  () async {
-                  if (_formKey.currentState!.validate()) {
 
-                    setState(() {
-                      _isSaving = true;
-                    });
-                    Map<String, dynamic> requestBody = {
-                      'title': titulo,
-                      'description': descripcion,
-                      'NSFW': nsfw,
-                      'tags':tags
-                    };
+
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  const Text(
+                    "NSFW:",
+                    style: TextStyle(fontSize: 18),
+                  ),
+                  Checkbox(
+                    activeColor: Colors.red,
+                    checkColor: Colors.black,
+                    value: post.NSFW,
+                    onChanged: (bool? value) {
+                      setState(() {
+                        post.NSFW = !post.NSFW;
+                        nsfw = value!;
+                      });
+                    },
+                  ),
+
+                ],
+              ),
+
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.end,
+
+                children: <Widget>[
+                  ElevatedButton(
+                    child: const Text('Rsert  Form'),
+                    onPressed: () {
+                      nsfw = false;
+                      _formKey.currentState!.reset();
+
 
                       setState(() {
-                        _isSaving = false;
+
                       });
-                      try{
-                        Map<String, dynamic> response = await apiService.updatePost(requestBody,post.id);
-                        print(response);
-                        if(!response.isEmpty) {
-                          //Navigator.push(context, MaterialPageRoute(
-                          //    builder: (context) => ListImagesScreen()));
-                          _formKey.currentState!.reset();
+                    },
+                  ),
+                  ElevatedButton(
+                    child: const Text('SAVE'),
+                    onPressed: _isSaving?null :  () async {
+                      if (_formKey.currentState!.validate()) {
 
+                        setState(() {
+                          _isSaving = true;
+                        });
+                        Map<String, dynamic> requestBody = {
+                          'title': titulo,
+                          'description': descripcion,
+                          'NSFW': nsfw,
+                          'tags':tags
+                        };
+
+                        setState(() {
+                          _isSaving = false;
+                        });
+                        try{
+                          Map<String, dynamic> response = await apiService.updatePost(requestBody,post.id);
+                          print(response);
+                          if(!response.isEmpty) {
+                            //Navigator.push(context, MaterialPageRoute(
+                            //    builder: (context) => ListImagesScreen()));
+                            _formKey.currentState!.reset();
+
+                            ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text('Imagen actulizada ${response['title']}'), backgroundColor: Colors.green));
+
+                            Navigator.pop(context);
+                            Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(builder: (context) => PostScreen(post)));
+                          }
+                        } catch (error) {
+                          print(error);
+                          // Muestra un mensaje de error si la autenticación falla
                           ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('Imagen subida ${response['title']}'), backgroundColor: Colors.green));
-
-                          Navigator.pop(context);
-                          Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(builder: (context) => PostScreen(post)));
+                            SnackBar(content: Text('Error al subir el post:$error'), backgroundColor: Colors.red),
+                          );
                         }
-                      } catch (error) {
-                        print(error);
-                        // Muestra un mensaje de error si la autenticación falla
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('Error al subir el post:$error'), backgroundColor: Colors.red),
-                        );
                       }
-                    }
-                  },
+                    },
+                  ),
+                ],
               ),
             ],
           ),
-        ],
-      ),
+        )
     );
   }
 }

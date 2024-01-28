@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:fastgalery/screens/home.dart';
 import 'package:fastgalery/screens/post_show.dart';
 import 'package:fastgalery/screens/posts_list.dart';
+import 'package:fastgalery/screens/profile.dart';
 import 'package:fastgalery/services/api_services.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
@@ -24,17 +25,18 @@ Future<String?> usernameLogin() async{
 
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+  //windows 10 falla por esto
+  /*WidgetsFlutterBinding.ensureInitialized();
   await FlutterDownloader.initialize(
-      debug: true // Configura esto según tus necesidades (puedes cambiarlo a false en producción)
-  );
+      debug: false // Configura esto según tus necesidades (puedes cambiarlo a false en producción)
+  );*/
 
 
   runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  static const _title = 'Fast Galery';
+  static const _title = 'FastGallery';
 
   @override
   Widget build(BuildContext context) {
@@ -46,7 +48,7 @@ class MyApp extends StatelessWidget {
         brightness: Brightness.light
       ),
       darkTheme: ThemeData(
-        brightness: Brightness.dark,
+        brightness: Brightness.light,
       ),
       themeMode: ThemeMode.system,
       home: /*FutureBuilder<String?>(
@@ -69,8 +71,7 @@ class MyApp extends StatelessWidget {
       routes: {
 
         '/login': (context)=> const LoginScreen(),
-        '/PostsListScreen': (context) => PostsListScreen(1),
-
+        //'/PostsListScreen': (context) => PostsListScreen(1),
       },
     );
   }

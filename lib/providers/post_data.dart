@@ -24,6 +24,10 @@ class PostData{
     _posts.clear();
   }
 
+  void deletePostById(int postId) {
+    _posts.removeWhere((post) => post.id == postId);
+  }
+
 
   // Método para agregar más datos al objeto PostData
   static void addMoreData(PostData existingData, PostData newData) {

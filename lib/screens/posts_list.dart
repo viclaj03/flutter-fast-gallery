@@ -4,12 +4,15 @@ import 'dart:ui';
 
 import 'package:fastgalery/model/post.dart';
 import 'package:fastgalery/providers/post_data.dart';
+import 'package:fastgalery/providers/shared_preferences.dart';
 import 'package:fastgalery/screens/form_post.dart';
+import 'package:fastgalery/screens/message_list.dart';
 import 'package:fastgalery/screens/post_show.dart';
 import 'package:fastgalery/screens/posts_list_like.dart';
 import 'package:fastgalery/screens/profile.dart';
 import 'package:fastgalery/screens/registre.dart';
 import 'package:fastgalery/screens/search_screen.dart';
+import 'package:fastgalery/screens/settings.dart';
 import 'package:fastgalery/services/api_services.dart';
 import 'package:flutter/material.dart';
 
@@ -86,19 +89,19 @@ class PostsListScreen extends StatefulWidget {
 }
 
 class _PostsListScreenState extends State<PostsListScreen> {
-   final ScrollController _scrollController = ScrollController();
+  final ScrollController _scrollController = ScrollController();
   final PostData _postData = PostData.fromJson('[]');
-   final PostData _postDataFollow = PostData.fromJson('[]');
+  final PostData _postDataFollow = PostData.fromJson('[]');
   int id_user;
   _PostsListScreenState(this.id_user);
-   int _currentTabIndex = 1;
+  int _currentTabIndex = 1;
 
- // Página inicial
+  // Página inicial
 
   @override
   void initState() {
     super.initState();
-
+    _currentPage = 1;
     _loadData();
     _scrollController.addListener(_scrollListener);
   }
@@ -127,47 +130,42 @@ class _PostsListScreenState extends State<PostsListScreen> {
       print('pagina actual -> $_currentPage');
       print('pagina actual follow -> $_currentFollowPage');
       if(_currentTabIndex == 1){
-         jsonData = await apiService.getImageList(_currentPage);
-          newData = PostData.fromJson(jsonData);
-
-         if (newData.getSize() > 0) {
-           setState(() {
-             PostData.addMoreData(_postData, newData);
-             _currentPage++;
-           });
-         } else {
-           print('sin posts');
-           ScaffoldMessenger.of(context).showSnackBar(
-             const SnackBar(
-               content: Text('Ya no hay más posts :(',),showCloseIcon: true,
-               backgroundColor: Colors.red,duration: Duration(seconds: 2),shape: StadiumBorder(),
-               behavior: SnackBarBehavior.floating,
-             ),
-           );
-         }
+        jsonData = await apiService.getImageList(_currentPage);
+        newData = PostData.fromJson(jsonData);
+        if (newData.getSize() > 0) {
+          setState(() {
+            PostData.addMoreData(_postData, newData);
+            _currentPage++;
+          });
+        } else {
+          print('sin posts');
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Ya no hay más posts :(',),showCloseIcon: true,
+              backgroundColor: Colors.red,duration: Duration(seconds: 2),shape: StadiumBorder(),
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        }
 
       } else {
-         jsonDataFollow = await apiService.getImageListByFollowing(_currentFollowPage);
-          newDataFollow = PostData.fromJson(jsonDataFollow);
-
-         if ( newDataFollow.getSize() > 0) {
-           setState(() {
-
-               PostData.addMoreData(_postDataFollow, newDataFollow);
-               _currentFollowPage++;
-
-
-           });
-         } else {
-           print('sin posts');
-           ScaffoldMessenger.of(context).showSnackBar(
-             const SnackBar(
-               content: Text('Ya no hay más posts :(',),showCloseIcon: true,
-               backgroundColor: Colors.red,duration: Duration(seconds: 2),shape: StadiumBorder(),
-               behavior: SnackBarBehavior.floating,
-             ),
-           );
-         }
+        jsonDataFollow = await apiService.getImageListByFollowing(_currentFollowPage);
+        newDataFollow = PostData.fromJson(jsonDataFollow);
+        if ( newDataFollow.getSize() > 0) {
+          setState(() {
+            PostData.addMoreData(_postDataFollow, newDataFollow);
+            _currentFollowPage++;
+          });
+        } else {
+          print('sin posts');
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Ya no hay más posts :(',),showCloseIcon: true,
+              backgroundColor: Colors.red,duration: Duration(seconds: 2),shape: StadiumBorder(),
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        }
 
       }
 
@@ -216,10 +214,12 @@ class _PostsListScreenState extends State<PostsListScreen> {
   Widget build(BuildContext context) {
     return DefaultTabController(length: 2, initialIndex: 1, child:  Scaffold(
       drawer: Drawer(
-          child:ListView(
+          child:Column(
             // Important: Remove any padding from the ListView.
-              padding: EdgeInsets.zero,
-              children:  [
+              //padding: EdgeInsets.zero,
+            mainAxisSize: MainAxisSize.max,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children:  <Widget>[
                 const DrawerHeader(
                   padding: EdgeInsets.zero,
                   decoration: BoxDecoration(
@@ -227,11 +227,14 @@ class _PostsListScreenState extends State<PostsListScreen> {
                         begin: Alignment.topLeft,
                         end: Alignment(0.8, 1),
                         colors: <Color>[
+                          /*
                           Color(0xff1f005c),
                           Color(0xff002d60),
                           Color(0xff015f87),
-                          Color(0xff4bb6c0),
-                    ],tileMode: TileMode.mirror),
+                          Color(0xff4bb6c0),*/
+                          Color(0xff611de1),
+                          Color(0xffa74bc0),
+                        ],tileMode: TileMode.mirror),
                     //color: Color(0xFF71B5EC),
                   ),
                   child:Text('FastGallery',style: TextStyle(fontSize: 50,color: Colors.white)),
@@ -248,7 +251,6 @@ class _PostsListScreenState extends State<PostsListScreen> {
                   onTap: (){
                     Navigator.push(context, MaterialPageRoute(builder: (context) => ProfileScreen(id_user: id_user)));
                   },
-
                 ),
                 ListTile(
                   title:Row(
@@ -263,6 +265,56 @@ class _PostsListScreenState extends State<PostsListScreen> {
                   },
 
                 ),
+                ListTile(
+                  title:Row(
+                    children: const [
+                      Icon(Icons.mail,size: 45,color: Colors.grey),  // Aquí puedes cambiar Icons.person por el icono que prefieras
+                      SizedBox(width: 10), // Añade un espacio entre el icono y el texto
+                      Text('Mensajes',style: TextStyle(fontSize: 25),),
+                    ],
+                  ),
+                  onTap: (){
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => MessageListScreen()));
+                  },
+
+                ),
+                Expanded(
+                    child: Align(
+                      alignment: Alignment.bottomLeft,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: <Widget>[
+                          ListTile(
+                            title:Row(
+                              children: const [
+                                Icon(Icons.settings,size: 25,color: Colors.grey),  // Aquí puedes cambiar Icons.person por el icono que prefieras
+                                SizedBox(width: 10), // Añade un espacio entre el icono y el texto
+                                Text('Settings',style: TextStyle(fontSize: 25),),
+                              ],
+                            ),
+                            onTap: (){
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => SettingsScreen()));
+                            },
+                          ),
+                          ListTile(
+                            title:Row(
+                              children: const [
+                                Icon(Icons.logout,size: 25,color: Colors.red),  // Aquí puedes cambiar Icons.person por el icono que prefieras
+                                SizedBox(width: 10), // Añade un espacio entre el icono y el texto
+                                Text('Logout',style: TextStyle(fontSize: 25,color: Colors.red),),
+                              ],
+                            ),
+                            onTap: (){
+                              removeToken();
+                              removeUserData();
+                              Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
+                              //Navigator.push(context, MaterialPageRoute(builder: (context) => ListImagesLikeScreen()));
+                            },
+                          ),
+                        ],
+                      ),
+                    )
+                ),
               ]
           )
       ),
@@ -271,7 +323,6 @@ class _PostsListScreenState extends State<PostsListScreen> {
           onTap: (index) {
             // Cambia el índice de la pestaña cuando se selecciona una nueva pestaña
             setState(() {
-
               _currentTabIndex = index;
               _refresh();
             });
@@ -285,7 +336,7 @@ class _PostsListScreenState extends State<PostsListScreen> {
             )
           ],
         ),
-        title: const Text('Fast Gallery'),
+        title: const Text('FastGallery'),
         actions: <Widget>[
           IconButton(
             icon: Icon(Icons.search),
@@ -316,28 +367,25 @@ class _PostsListScreenState extends State<PostsListScreen> {
 
 
 
-
-
-
-   Widget imageListFollow(){
-     return RefreshIndicator(
-       onRefresh: _refresh,
-       child: GridView.builder(
-         physics: AlwaysScrollableScrollPhysics(),
-         gridDelegate:  SliverGridDelegateWithFixedCrossAxisCount(
-           crossAxisCount: calculateCrossAxisCount(context),
-           crossAxisSpacing: 8.0,
-           mainAxisSpacing: 8.0,
-         ),
-         controller: _scrollController,
-         itemCount: _postDataFollow.getSize(),
-         itemBuilder: (context, index) {
-           final post = _postDataFollow.getPost(index);
-           return  imageView(post);
-         },
-       ),
-     );
-   }
+  Widget imageListFollow(){
+    return RefreshIndicator(
+      onRefresh: _refresh,
+      child: GridView.builder(
+        physics: AlwaysScrollableScrollPhysics(),
+        gridDelegate:  SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: calculateCrossAxisCount(context),
+          crossAxisSpacing: 8.0,
+          mainAxisSpacing: 8.0,
+        ),
+        controller: _scrollController,
+        itemCount: _postDataFollow.getSize(),
+        itemBuilder: (context, index) {
+          final post = _postDataFollow.getPost(index);
+          return  imageView(post);
+        },
+      ),
+    );
+  }
 
 
   Widget imageList(){
@@ -399,7 +447,16 @@ class _PostsListScreenState extends State<PostsListScreen> {
         ],
       ),
       onTap: () {
-        Navigator.push(context, MaterialPageRoute(builder: (context) => PostScreen(post)));
+        Navigator.push(context, MaterialPageRoute(builder: (context) => PostScreen(post))).then((result) =>
+        {
+
+          if(result != null && result is int){
+            setState(() {
+              _postData.deletePostById(result);
+            })
+
+          }
+        });
       },
     );
   }

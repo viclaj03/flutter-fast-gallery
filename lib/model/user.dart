@@ -10,6 +10,7 @@ class User{
   int? follower_count;
   int? like_counts;
 
+
   //favorited_by
 
   User(this.id,this.name,this.email,this.is_active,this.subscribe,this.post_count,this.follower_count,this.like_counts);
