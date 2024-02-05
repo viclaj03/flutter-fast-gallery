@@ -3,8 +3,13 @@ import 'package:flutter/material.dart';
 class GradientAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
   final List<Color> gradientColors;
+  final PreferredSizeWidget? bottom;
 
-  GradientAppBar({required this.title, required this.gradientColors});
+  GradientAppBar({
+    required this.title,
+    required this.gradientColors,
+    this.bottom,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -18,14 +23,17 @@ class GradientAppBar extends StatelessWidget implements PreferredSizeWidget {
       ),
       child: AppBar(
         title: Text(title),
-        backgroundColor: Colors.transparent, // Make app bar transparent
-        elevation: 0, // Remove app bar shadow
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        bottom: bottom, // Add the bottom widget here
       ),
     );
   }
 
   @override
-  Size get preferredSize => Size.fromHeight(kToolbarHeight);
+  Size get preferredSize {
+    // Calculate preferred size including the height of the bottom widget
+    double appBarHeight = kToolbarHeight + (bottom?.preferredSize.height ?? 0);
+    return Size.fromHeight(appBarHeight);
+  }
 }
-
-

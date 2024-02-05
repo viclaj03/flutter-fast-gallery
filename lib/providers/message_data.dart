@@ -30,7 +30,9 @@ class MessageData{
     return MessageData._(messageList,respuesta['total_messages'],respuesta['has_next'],respuesta['has_previous'],respuesta['page']);
   }
 
-
+  void deleteMessage(int messageId){
+    _messages.removeWhere((message) => message.id == messageId);
+}
 
   int get page => _page;
 

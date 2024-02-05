@@ -5,13 +5,13 @@ import 'package:fastgalery/screens/form_post.dart';
 import 'package:flutter/material.dart';
 
 
-String username = "";
+String _username = "";
 
-String emailInput = "";
+String _emailInput = "";
 
-String passwordInput = "";
+String _password = "";
 
-bool invisiblePassword = true;
+bool _invisiblePassword = true;
 
 
 
@@ -51,6 +51,12 @@ class _FormularioState extends State<Formulario> {
 
   _FormularioState(this.user);
 
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _invisiblePassword = true;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -104,7 +110,7 @@ class _FormularioState extends State<Formulario> {
           } else if (value.length < 3 && value.length > 255) {
             return 'El username debe tene min 4  max 254';
           }
-          username = value;
+          _username = value;
           return null;
         },
       ),
@@ -133,7 +139,7 @@ class _FormularioState extends State<Formulario> {
               .hasMatch(value)) {
             return 'invalid email';
           }
-          emailInput = value;
+          _emailInput = value;
           return null;
         },
       ),
@@ -145,7 +151,7 @@ class _FormularioState extends State<Formulario> {
     return Container(
       margin: EdgeInsets.only(bottom: 16.0),
       child: TextFormField(
-        obscureText: invisiblePassword,
+        obscureText: _invisiblePassword,
         obscuringCharacter: '*',
         decoration: InputDecoration(
           hintText: 'Write your password',
@@ -154,10 +160,10 @@ class _FormularioState extends State<Formulario> {
               borderRadius: BorderRadius.circular(10.0)
           ),
           suffixIcon: IconButton(
-            icon: invisiblePassword? const Icon(Icons.visibility_off, color: Colors.black,):const Icon(Icons.visibility, color: Colors.black,),
+            icon: _invisiblePassword? const Icon(Icons.visibility_off, color: Colors.black,):const Icon(Icons.visibility, color: Colors.black,),
             onPressed: () {
               setState(() {
-                invisiblePassword = !invisiblePassword;
+                _invisiblePassword = !_invisiblePassword;
               });
             },
           ),
@@ -172,7 +178,7 @@ class _FormularioState extends State<Formulario> {
               .hasMatch(value)) {
             return 'Enter valid password';
           }
-          passwordInput = value;
+          _password = value;
           return null;
         },
       ),
@@ -192,12 +198,12 @@ class _FormularioState extends State<Formulario> {
           if (_formKey.currentState!.validate()) {
 
             try{
-              await apiService.updateProfile(username: username, email: emailInput,password: passwordInput);
+              await apiService.updateProfile(username: _username, email: _emailInput,password: _password);
 
-              user.email = emailInput;
-              user.name = username;
+              user.email = _emailInput;
+              user.name = _username;
               _formKey.currentState!.reset();
-              passwordInput = "";
+              _password = "";
               Navigator.pop(context,user);
             }catch(e){
               ScaffoldMessenger.of(context).showSnackBar(

@@ -1,7 +1,9 @@
 import 'dart:convert';
+import 'package:fastgalery/customWidgest/grandient_app_bar.dart';
 import 'package:fastgalery/screens/post_show.dart';
 
 import 'package:fastgalery/screens/posts_list.dart';
+import 'package:fastgalery/services/api_services.dart';
 import 'package:flutter/material.dart';
 
 import 'package:http/http.dart' as http;
@@ -9,15 +11,15 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:fastgalery/providers/shared_preferences.dart';
 
 
-String username = "";
+String _username = "";
 
-String emailInput = "";
+String _emailInput = "";
 
-String passwordInput = "";
+String _password = "";
 
-bool invisiblePassword = true;
+bool _invisiblePassword = true;
 
-
+ApiService _apiService = ApiService();
 
 class RegistreScreen extends StatefulWidget {
   const RegistreScreen({Key? key}) : super(key: key);
@@ -33,11 +35,24 @@ class RegistreScreen extends StatefulWidget {
 class _RegistreScreenState extends State<RegistreScreen> {
   final _formKey = GlobalKey<FormState>();
 
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _invisiblePassword = true;
+  }
+
   @override
   Widget build(BuildContext context) {
 
     return  Scaffold(
-        appBar: AppBar(title: const Text('Registre')),
+        appBar: GradientAppBar(title: 'Registre',
+        gradientColors: const [
+          Color(0xff611de1),
+          Color(0xffa74bc0),
+          ],
+        ),
         body: SingleChildScrollView(
     child: Form(
           key: _formKey,
@@ -86,7 +101,7 @@ class _RegistreScreenState extends State<RegistreScreen> {
           } else if(value.length < 3 && value.length > 255) {
             return 'El username debe tene min 4  max 254';
           }
-          username = value;
+          _username = value;
           return null;
         },
       ),
@@ -117,7 +132,7 @@ class _RegistreScreenState extends State<RegistreScreen> {
               .hasMatch(value)) {
             return 'invalid email';
           }
-          emailInput = value;
+          _emailInput = value;
           return null;
         },
       ),
@@ -125,10 +140,11 @@ class _RegistreScreenState extends State<RegistreScreen> {
     );
   }
   Widget _passwordInput(){
+
     return Container(
       margin: EdgeInsets.only(bottom: 16.0),
       child: TextFormField(
-        obscureText: invisiblePassword,
+        obscureText: _invisiblePassword,
         obscuringCharacter: '*',
         decoration: InputDecoration(
             hintText: 'Write your password',
@@ -137,10 +153,10 @@ class _RegistreScreenState extends State<RegistreScreen> {
                 borderRadius: BorderRadius.circular(10.0)
             ),
           suffixIcon: IconButton(
-            icon: invisiblePassword? const Icon(Icons.visibility_off, color: Colors.black,):const Icon(Icons.visibility, color: Colors.black,),
+            icon: _invisiblePassword? const Icon(Icons.visibility_off, color: Colors.black,):const Icon(Icons.visibility, color: Colors.black,),
             onPressed: () {
               setState(() {
-                invisiblePassword = !invisiblePassword;
+                _invisiblePassword = !_invisiblePassword;
               });
             },
           ),
@@ -150,9 +166,9 @@ class _RegistreScreenState extends State<RegistreScreen> {
             return 'Sorry, password can not be empty';
           }
           if (!RegExp(r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9]).{8,}$').hasMatch(value)) {
-            return  'inValid password [8 digitos, mayusculas y minusculas \ny numeros]';
+            return  'invalid password [8 digitos, mayusculas y minusculas \ny numeros]';
           }
-          passwordInput = value;
+          _password = value;
           return null;
         },
       ),
@@ -170,7 +186,7 @@ class _RegistreScreenState extends State<RegistreScreen> {
             // Llamada a la API para autenticar al usuario y obtener el token
             try {
               // Realiza la solicitud de inicio de sesión a la API y obtén el token
-              int id = await resgistreUser(emailInput, passwordInput);
+              int id = await _apiService.resgistreUser(email:  _emailInput,username: _username ,password: _password);
 
               if(!context.mounted) return;
 
@@ -203,32 +219,7 @@ class _RegistreScreenState extends State<RegistreScreen> {
 
 
 
-  Future<int> resgistreUser(String email, String password) async {
 
-    final response = await http.post(
-        Uri.parse('http://192.168.1.148:8000/registre'),
-
-      body: {
-        'email': email,
-        'name': username,
-        'password': password,
-      },
-    );
-
-
-
-    if (response.statusCode == 200) {
-      final token =  json.decode(response.body);
-      await saveToken(token['access_token']);
-      await saveIdUser(token['id']);
-      print(response.body);
-      return token['id'];
-    } else {
-      final respuesta =  json.decode(response.body);
-      // Si la solicitud falla, lanza una excepción
-      throw Exception('Error de autenticación T.T ${respuesta['detail']}');
-    }
-  }
 
 }
 

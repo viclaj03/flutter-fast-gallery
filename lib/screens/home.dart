@@ -19,7 +19,6 @@ Future<String?> usernameLogin() async{
     await saveIdUser(json.decode(userData)['id']);
     await saveEmail(json.decode(userData)['email']);
     await saveUsername(json.decode(userData)['name']);
-    print(json.decode(userData));
     return userData;
   }catch(e){
     return null;

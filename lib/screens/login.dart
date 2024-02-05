@@ -1,4 +1,6 @@
 import 'dart:convert';
+import 'package:fastgalery/customWidgest/grandient_app_bar.dart';
+import 'package:fastgalery/screens/forgot_password.dart';
 import 'package:fastgalery/screens/post_show.dart';
 
 import 'package:fastgalery/screens/posts_list.dart';
@@ -6,16 +8,16 @@ import 'package:fastgalery/screens/registre.dart';
 import 'package:fastgalery/services/api_services.dart';
 import 'package:flutter/material.dart';
 
-import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:fastgalery/providers/shared_preferences.dart';
 
 
-ApiService apiService = ApiService();
+bool _invisiblePassword = true;
 
-String emailInput = "";
 
-String passwordInput = "";
+ApiService _apiService = ApiService();
+
+String _emailInput = "";
+
+String _password = "";
 
 
 
@@ -34,10 +36,22 @@ class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
 
   @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _invisiblePassword = true;
+  }
+
+  @override
   Widget build(BuildContext context) {
 
     return Scaffold(
-      appBar: AppBar(title: const Text('FastGallery')),
+      appBar: GradientAppBar(title: 'FastGallery',
+        gradientColors: const [
+          Color(0xff611de1),
+          Color(0xffa74bc0),
+        ],
+      ),
       body: SingleChildScrollView(
           child: Form(
             key: _formKey,
@@ -47,11 +61,11 @@ class _LoginScreenState extends State<LoginScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: <Widget>[
-              ClipRRect(
-              borderRadius: BorderRadius.circular(10000002),
-                  child:
-                  Image.asset('assets/icon/1024.png',scale: 5),
-              ),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(10000002),
+                    child:
+                    Image.asset('assets/icon/1024.png',scale: 5),
+                  ),
                   const SizedBox(
                     height: 50,
                   ),
@@ -59,9 +73,13 @@ class _LoginScreenState extends State<LoginScreen> {
                   _passwordInput(),
                   _loginButton(),
                   const SizedBox(
-                    height: 100,
+                    height: 50,
                   ),
                   _registreButto(),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  _forgotPasswor()
                 ],
               ),
             ),
@@ -85,12 +103,12 @@ class _LoginScreenState extends State<LoginScreen> {
         validator: (value){
           if(value == null || value.isEmpty){
             return'Sorry, user cant \'t be empty';
-            //todo ejercicio3 verificamos que es un email valido
+
           } else if(!RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
               .hasMatch(value)) {
             //return 'invalid email';
           }
-          emailInput = value;
+          _emailInput = value;
           return null;
         },
       ),
@@ -100,7 +118,7 @@ class _LoginScreenState extends State<LoginScreen> {
     return Container(
       margin: EdgeInsets.only(bottom: 16.0),
       child: TextFormField(
-        obscureText: invisiblePassword,
+        obscureText: _invisiblePassword,
         obscuringCharacter: '*',
         decoration: InputDecoration(
           hintText: 'Write your password',
@@ -109,10 +127,10 @@ class _LoginScreenState extends State<LoginScreen> {
               borderRadius: BorderRadius.circular(10.0)
           ),
           suffixIcon: IconButton(
-            icon: invisiblePassword? const Icon(Icons.visibility_off, color: Colors.black,):const Icon(Icons.visibility, color: Colors.black,),
+            icon: _invisiblePassword? const Icon(Icons.visibility_off, color: Colors.black,):const Icon(Icons.visibility, color: Colors.black,),
             onPressed: () {
               setState(() {
-                invisiblePassword = !invisiblePassword;
+                _invisiblePassword = !_invisiblePassword;
               });
             },
           ),
@@ -121,11 +139,8 @@ class _LoginScreenState extends State<LoginScreen> {
           if(value == null || value.isEmpty){
             return 'Sorry, password can not be empty';
           }
-//todo Ejercicio 3 verificamos que tine minimo  una mayuscula, numero y simbolo ademas del tamaño
-          if (!RegExp(r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@#\$&*~]).{8,}$').hasMatch(value)) {
-            //return null;// 'Enter valid password';
-          }
-          passwordInput = value;
+
+          _password = value;
           return null;
         },
       ),
@@ -143,8 +158,8 @@ class _LoginScreenState extends State<LoginScreen> {
             // Llamada a la API para autenticar al usuario y obtener el token
             try {
               // Realiza la solicitud de inicio de sesión a la API y obtén el token
-              String userData = await authenticateUser(emailInput, passwordInput);
-              username = json.decode(userData)['name'];
+              String userData = await  _apiService.authenticateUser(_emailInput, _password);
+              String username = json.decode(userData)['name'];
               int id_user = json.decode(userData)['id'];
               if(!context.mounted) return;
               /*Navigator.pushNamedAndRemoveUntil(context, '/PostsListScreen',
@@ -184,41 +199,27 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
+  Widget _forgotPasswor(){
+    return TextButton(onPressed: (){
+      Navigator.push(context, MaterialPageRoute(builder:  (context)=> ForgotPasswordScreen()));
+    }, child: Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
 
-
-
-
-
-
-  Future<String> authenticateUser(String email, String password) async {
-
-    final response = await http.post(
-        Uri.parse('http://192.168.1.148:8000/login'),
-        body:{
-
-          'username': emailInput,
-          'password': passwordInput,
-        }
-    );
-
-    if (response.statusCode == 200) {
-      final token =  json.decode(response.body);
-      await saveToken(token['access_token']);
-
-
-
-      String userData = await apiService.getMyUser();
-      await saveIdUser(json.decode(userData)['id']);
-      await saveEmail(json.decode(userData)['email']);
-      await saveUsername(json.decode(userData)['name']);
-      print(response.body);
-      return userData;
-    } else {
-      print(response.body);
-      // Si la solicitud falla, lanza una excepción
-      throw Exception('Error de autentificación T.T');
-    }
+      children: const <Widget>[
+        Icon(Icons.help),
+        Text(' Forgot Password?')
+      ],
+    ));
   }
+
+
+
+
+
+
+
+
 
 }
 

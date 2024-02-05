@@ -10,8 +10,118 @@ import 'package:image_picker/image_picker.dart';
 
 
 class ApiService {
-  final String baseUrl = "http://192.168.1.148:8000" ;
+  final String baseUrl = "http://192.168.1.136:8000" ;
   ApiService();
+
+
+  Future<String> authenticateUser(String email, String password) async {
+
+    final response = await http.post(
+        Uri.parse('${baseUrl}/login'),
+        body:{
+
+          'username': email,
+          'password': password,
+        }
+    );
+
+    if (response.statusCode == 200) {
+      final token =  json.decode(response.body);
+      await saveToken(token['access_token']);
+
+
+
+      String userData = await getMyUser();
+      await saveIdUser(json.decode(userData)['id']);
+      await saveEmail(json.decode(userData)['email']);
+      await saveUsername(json.decode(userData)['name']);
+
+      return userData;
+    } else {
+
+      // Si la solicitud falla, lanza una excepción
+      throw Exception('Error de autentificación T.T');
+    }
+  }
+
+  Future<int> resgistreUser({required String email,required String username,required String password}) async {
+
+    final response = await http.post(
+      Uri.parse('http://192.168.1.136:8000/registre'),
+
+      body: {
+        'email': email,
+        'name': username,
+        'password': password,
+      },
+    );
+
+
+    if (response.statusCode == 200) {
+      final token =  json.decode(response.body);
+      await saveToken(token['access_token']);
+      await saveIdUser(token['id']);
+      print(response.body);
+      return token['id'];
+    } else {
+      final respuesta =  json.decode(response.body);
+      // Si la solicitud falla, lanza una excepción
+      throw Exception('Error de autenticación T.T ${respuesta['detail']}');
+    }
+  }
+
+
+
+
+
+
+  Future<String> forgotPassword({required String email}) async {
+
+    final response = await http.post(
+      Uri.parse('${baseUrl}/forgot-password'),
+
+      body: {
+        'email': email,
+      },
+    );
+
+
+    if (response.statusCode == 200) {
+      final mensaje =  json.decode(utf8.decode(response.body.codeUnits))['message'];
+      return mensaje;
+    } else {
+      final respuesta =  json.decode(response.body);
+      // Si la solicitud falla, lanza una excepción
+      throw Exception('Error: ${respuesta['detail']}');
+    }
+  }
+
+
+  Future<String> newPassword({required String email,required String code,required String password}) async {
+
+    final response = await http.post(
+      Uri.parse('${baseUrl}/reset-password'),
+
+      body: {
+        'email': email,
+        'recovery_code': code,
+        'password':password
+      },
+    );
+
+
+    if (response.statusCode == 200) {
+      final mensaje =  json.decode(utf8.decode(response.body.codeUnits))['message'];
+      return mensaje;
+    } else {
+      final respuesta =  json.decode(response.body);
+      // Si la solicitud falla, lanza una excepción
+      throw Exception('Error: ${respuesta['detail']}');
+    }
+  }
+
+
+
 
 
 
@@ -66,6 +176,23 @@ class ApiService {
     }
   }
 
+  Future<String> getSenderMessageList(int page) async {
+    Map<String, String> baseHeaders;
+    final token = await getToken();
+
+    final response = await http.get(Uri.parse('$baseUrl/get-messages-sender/?page=$page'),headers: {
+      'Authorization': 'Bearer ' + token!,
+    });
+    if (response.statusCode == 200) {
+
+      return response.body;
+    } else {
+      throw Exception('Error al cargar la lista de mensajes');
+    }
+  }
+
+
+
 
   Future<String> getMessage(int id) async {
     Map<String, String> baseHeaders;
@@ -79,6 +206,23 @@ class ApiService {
       return response.body;
     } else {
       throw Exception('Error al cargar el mensaje');
+    }
+  }
+
+
+
+  Future<String> deleteMessage(int id) async {
+    Map<String, String> baseHeaders;
+    final token = await getToken();
+
+    final response = await http.delete(Uri.parse('$baseUrl/message/${id}'),headers: {
+      'Authorization': 'Bearer ' + token!,
+    });
+    if (response.statusCode == 200) {
+
+      return response.body;
+    } else {
+      throw Exception('Error al borrar el mensaje');
     }
   }
 

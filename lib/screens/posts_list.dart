@@ -157,7 +157,7 @@ class _PostsListScreenState extends State<PostsListScreen> {
             _currentFollowPage++;
           });
         } else {
-          print('sin posts');
+
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('Ya no hay más posts :(',),showCloseIcon: true,
@@ -168,32 +168,6 @@ class _PostsListScreenState extends State<PostsListScreen> {
         }
 
       }
-
-
-
-      /*if (newData.getSize() > 0 || newDataFollow.getSize() > 0) {
-        setState(() {
-          if(_currentTabIndex == 1){
-            PostData.addMoreData(_postData, newData);
-            _currentPage++;
-          } else {
-            PostData.addMoreData(_postDataFollow, newDataFollow);
-            _currentFollowPage++;
-          }
-
-        });
-      } else {
-        print('sin posts');
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Ya no hay más posts :(',),showCloseIcon: true,
-            backgroundColor: Colors.red,duration: Duration(seconds: 2),shape: StadiumBorder(),
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
-      }*/
-
-
     } catch (e) {
       print('Error al cargar datos: $e');
     }

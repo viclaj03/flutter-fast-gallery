@@ -11,6 +11,8 @@ import 'package:intl/intl.dart';
 
 ApiService apiService = ApiService();
 
+int _currentTabIndex = 0;
+
 class MessageListScreen extends StatefulWidget {
   const MessageListScreen({super.key});
 
@@ -21,21 +23,51 @@ class MessageListScreen extends StatefulWidget {
 class _MessageListScreenState extends State<MessageListScreen> {
   @override
   Widget build(BuildContext context) {
-    return  Scaffold(
-      appBar: GradientAppBar(title: 'Messages', gradientColors:  const <Color>[
-        Color(0xff611de1),
-        Color(0xffa74bc0),
-      ]),
-      body: _inbox(),
-      floatingActionButton: FloatingActionButton(
-          tooltip: 'New Message',
-          onPressed: () {
-             Navigator.push(context,
+    return
+      DefaultTabController(length: 2, initialIndex: 1,child:
+
+      Scaffold(
+        appBar: GradientAppBar(
+          title: 'Message',
+          gradientColors: [
+            Color(0xff611de1),
+            Color(0xffa74bc0),
+          ],
+          bottom: TabBar(
+            onTap: (index) {
+              // Cambia el índice de la pestaña cuando se selecciona una nueva pestaña
+              setState(() {
+
+              });
+            },
+            tabs: const [
+              Tab(
+                text: "enviados",
+              ),
+              Tab(
+                text: "recibidos",
+              )
+            ],
+          ),
+        ),
+        body:
+        TabBarView(
+          children: [
+            _senderMessage(),
+            _inbox()
+          ],
+        )
+        ,
+        floatingActionButton: FloatingActionButton(
+            tooltip: 'New Message',
+            onPressed: () {
+              Navigator.push(context,
                   MaterialPageRoute(builder: (context) => MessageForm()));
-          },
-          child: const Icon(Icons.email)
+            },
+            child: const Icon(Icons.email)
+        ),
       ),
-    );
+      );
 
 
   }
@@ -45,7 +77,7 @@ class _MessageListScreenState extends State<MessageListScreen> {
         builder: (BuildContext context,AsyncSnapshot<String> snapshot){
           if(snapshot.hasData){
             MessageData messageData = MessageData.fromJson(snapshot.data!);
-            return ListMessages(messageData:  messageData);
+            return ListMessages(messageData:  messageData,isInbox: true);
           }else{
             return const Center(child: CircularProgressIndicator());
           }
@@ -54,63 +86,96 @@ class _MessageListScreenState extends State<MessageListScreen> {
 }
 
 
+Widget _senderMessage(){
+  return FutureBuilder(
+      future:  apiService.getSenderMessageList(1),
+      builder: (BuildContext context,AsyncSnapshot<String> snapshot){
+        if(snapshot.hasData){
+          MessageData messageData = MessageData.fromJson(snapshot.data!);
+          return ListMessages(messageData:  messageData,isInbox: false);
+        }else{
+          return const Center(child: CircularProgressIndicator());
+        }
+      });
+}
+
+
+
 
 
 
 class ListMessages extends StatefulWidget {
   final MessageData messageData;
-  const ListMessages(  { required this.messageData,super.key});
+  final bool isInbox;
+  const ListMessages(  { required this.messageData,required this.isInbox,super.key});
   @override
-  State<ListMessages> createState() => _ListMessagesState(messageData);
+  State<ListMessages> createState() => _ListMessagesState(messageData,isInbox);
 }
 
 class _ListMessagesState extends State<ListMessages> {
-  _ListMessagesState(this._messageData);
+  _ListMessagesState(this._messageData,this.isInbox);
   MessageData _messageData;
+  final bool isInbox;
 
   @override
   Widget build(BuildContext context) {
 
     return
-    Column(
-      children: <Widget>[
-        Expanded(child:
-        ListView.builder(
-            itemCount: _messageData.messages.length,
-            itemBuilder: (context,index)=>
-                _listItem(context, _messageData.messages[index]))
-        ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            IconButton(
-              icon: Icon(Icons.arrow_back),
-              onPressed: _messageData.has_previous? () async{
-                String _messages = await apiService.getMessageList(_messageData.page - 1);
+      Column(
+        children: <Widget>[
+          Expanded(child:
+          ListView.builder(
+              itemCount: _messageData.messages.length,
+              itemBuilder: (context,index)=>
+                  _listItem(context, _messageData.messages[index]))
+          ),
+          DecoratedBox(decoration: BoxDecoration(
+            color: Colors.grey
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              IconButton(
+                icon: Icon(Icons.arrow_back),
+                onPressed: _messageData.has_previous? () async{
+                  String _messages;
 
-                setState(()  {
-                  _messageData = MessageData.fromJson(_messages);
-                });
-              }:null,
-            ),
-            Text(
-              'Página ${_messageData.page}',
-              style: TextStyle(fontSize: 16),
-            ),
-            IconButton(
-              icon: Icon(Icons.arrow_forward),
-              onPressed:_messageData.has_next?  () async{
-                String _messages = await apiService.getMessageList(_messageData.page + 1);
+                  if(isInbox)
+                    _messages = await apiService.getMessageList(_messageData.page - 1);
+                  else
+                    _messages = await apiService.getSenderMessageList(_messageData.page - 1);
 
-                setState(()  {
-                  _messageData = MessageData.fromJson(_messages);
-                });
-              }:null,
+                  setState(()  {
+                    _messageData = MessageData.fromJson(_messages);
+                  });
+                }:null,
+              ),
+              Text(
+                'Página ${_messageData.page}',
+                style: TextStyle(fontSize: 16),
+              ),
+              IconButton(
+                icon: Icon(Icons.arrow_forward),
+                onPressed:_messageData.has_next?  () async{
+                  String _messages;
+
+                  if(isInbox)
+                    _messages = await apiService.getMessageList(_messageData.page + 1);
+                  else
+                    _messages = await apiService.getSenderMessageList(_messageData.page + 1);
+
+                  setState(()  {
+                    _messageData = MessageData.fromJson(_messages);
+                  });
+                }:null,
+              ),
+            ],
+          ),
+
             ),
-          ],
-        ),
-      ],
-    );
+
+        ],
+      );
 
 
   }
@@ -127,10 +192,20 @@ class _ListMessagesState extends State<ListMessages> {
           // context,
           // todo Ejercicio5 usamos el widget hero para dar aniumacion a la navegacion
             MaterialPageRoute(builder: (context)=>
-                ShowMessageScreen(id: message.id))).then((value) => {
-        setState(() {
-        message.reed = true;
-        })
+                ShowMessageScreen(id: message.id,isReciber:  isInbox))).then((value) => {
+                  if(value !=  null && value is Message){
+                    setState(() {
+                      print('eliminar');
+                        _messageData.deleteMessage(message.id);
+                    })
+                  } else {
+                    setState(() {
+                      if(isInbox)
+                        message.reed = true;
+                    })
+                  }
+
+          
         }),
 
         trailing:  Icon(message.reed ?Icons.mark_email_read:Icons.mark_email_unread,color:message.reed ?Colors.grey:Colors.yellow),
@@ -141,7 +216,7 @@ class _ListMessagesState extends State<ListMessages> {
             Text('${DateFormat('dd-MM-yy HH:mm').format(message.created_at)}'),
           ],
         ),
-        subtitle: Text('sender: ${message.user_sender.name}'),
+        subtitle: Text(isInbox ?'sender: ${message.user_sender.name}':'to: ${message.user_reciber.name}'),
         leading: Icon(Icons.account_circle),
         shape: RoundedRectangleBorder(
           side: const BorderSide(color: Colors.blue),
