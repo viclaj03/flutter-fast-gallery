@@ -190,7 +190,6 @@ class _ListMessagesState extends State<ListMessages> {
         tileColor: message.reed ?Colors.yellow.shade400:Colors.blue.shade200,
         onTap: () => Navigator.of(context).push(
           // context,
-          // todo Ejercicio5 usamos el widget hero para dar aniumacion a la navegacion
             MaterialPageRoute(builder: (context)=>
                 ShowMessageScreen(id: message.id,isReciber:  isInbox))).then((value) => {
                   if(value !=  null && value is Message){
@@ -212,7 +211,8 @@ class _ListMessagesState extends State<ListMessages> {
         title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text('${message.title}'),
+            Expanded(child:Text('${message.title}',overflow: TextOverflow.ellipsis,), ),
+
             Text('${DateFormat('dd-MM-yy HH:mm').format(message.created_at)}'),
           ],
         ),
