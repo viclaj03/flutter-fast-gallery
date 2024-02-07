@@ -2,21 +2,24 @@
 
 import 'dart:ui';
 
+import 'package:fastgalery/customWidgest/grandient_app_bar.dart';
 import 'package:fastgalery/model/post.dart';
 import 'package:fastgalery/providers/post_data.dart';
 import 'package:fastgalery/providers/shared_preferences.dart';
 import 'package:fastgalery/screens/form_post.dart';
 import 'package:fastgalery/screens/message_list.dart';
 import 'package:fastgalery/screens/post_show.dart';
+
 import 'package:fastgalery/screens/posts_list_like.dart';
 import 'package:fastgalery/screens/profile.dart';
-import 'package:fastgalery/screens/registre.dart';
+
 import 'package:fastgalery/screens/search_screen.dart';
 import 'package:fastgalery/screens/settings.dart';
+import 'package:fastgalery/screens/user_follow_list.dart';
 import 'package:fastgalery/services/api_services.dart';
 import 'package:flutter/material.dart';
 
-ApiService apiService = ApiService();
+ApiService _apiService = ApiService();
 
 
 
@@ -130,7 +133,7 @@ class _PostsListScreenState extends State<PostsListScreen> {
       print('pagina actual -> $_currentPage');
       print('pagina actual follow -> $_currentFollowPage');
       if(_currentTabIndex == 1){
-        jsonData = await apiService.getImageList(_currentPage);
+        jsonData = await _apiService.getImageList(_currentPage);
         newData = PostData.fromJson(jsonData);
         if (newData.getSize() > 0) {
           setState(() {
@@ -149,7 +152,7 @@ class _PostsListScreenState extends State<PostsListScreen> {
         }
 
       } else {
-        jsonDataFollow = await apiService.getImageListByFollowing(_currentFollowPage);
+        jsonDataFollow = await _apiService.getImageListByFollowing(_currentFollowPage);
         newDataFollow = PostData.fromJson(jsonDataFollow);
         if ( newDataFollow.getSize() > 0) {
           setState(() {
@@ -186,157 +189,176 @@ class _PostsListScreenState extends State<PostsListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(length: 2, initialIndex: 1, child:  Scaffold(
-      drawer: Drawer(
-          child:Column(
-            // Important: Remove any padding from the ListView.
-              //padding: EdgeInsets.zero,
-            mainAxisSize: MainAxisSize.max,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children:  <Widget>[
-                const DrawerHeader(
-                  padding: EdgeInsets.zero,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment(0.8, 1),
-                        colors: <Color>[
-                          /*
+    return DefaultTabController(length: 2, initialIndex: 1,
+        child:Scaffold(
+
+          drawer: Drawer(
+              child:Column(
+                // Important: Remove any padding from the ListView.
+                //padding: EdgeInsets.zero,
+                  mainAxisSize: MainAxisSize.max,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children:  <Widget>[
+                    const DrawerHeader(
+                      padding: EdgeInsets.zero,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment(0.8, 1),
+                            colors: <Color>[
+                              /*
                           Color(0xff1f005c),
                           Color(0xff002d60),
                           Color(0xff015f87),
                           Color(0xff4bb6c0),*/
-                          Color(0xff611de1),
-                          Color(0xffa74bc0),
-                        ],tileMode: TileMode.mirror),
-                    //color: Color(0xFF71B5EC),
-                  ),
-                  child:Text('FastGallery',style: TextStyle(fontSize: 50,color: Colors.white)),
-                ),
+                              Color(0xff611de1),
+                              Color(0xffa74bc0),
+                            ],tileMode: TileMode.mirror),
+                        //color: Color(0xFF71B5EC),
+                      ),
+                      child:Text('FastGallery',style: TextStyle(fontSize: 50,color: Colors.white)),
+                    ),
 
-                ListTile(
-                  title:Row(
-                    children: const [
-                      Icon(Icons.person,size: 45),  // Aquí puedes cambiar Icons.person por el icono que prefieras
-                      SizedBox(width: 10), // Añade un espacio entre el icono y el texto
-                      Text('Perfil',style: TextStyle(fontSize: 25),),
-                    ],
-                  ),
-                  onTap: (){
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => ProfileScreen(id_user: id_user)));
-                  },
-                ),
-                ListTile(
-                  title:Row(
-                    children: const [
-                      Icon(Icons.star,size: 45,color: Colors.amber),  // Aquí puedes cambiar Icons.person por el icono que prefieras
-                      SizedBox(width: 10), // Añade un espacio entre el icono y el texto
-                      Text('Favoritos',style: TextStyle(fontSize: 25),),
-                    ],
-                  ),
-                  onTap: (){
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => ListImagesLikeScreen()));
-                  },
-
-                ),
-                ListTile(
-                  title:Row(
-                    children: const [
-                      Icon(Icons.mail,size: 45,color: Colors.grey),  // Aquí puedes cambiar Icons.person por el icono que prefieras
-                      SizedBox(width: 10), // Añade un espacio entre el icono y el texto
-                      Text('Mensajes',style: TextStyle(fontSize: 25),),
-                    ],
-                  ),
-                  onTap: (){
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => MessageListScreen()));
-                  },
-
-                ),
-                Expanded(
-                    child: Align(
-                      alignment: Alignment.bottomLeft,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: <Widget>[
-                          ListTile(
-                            title:Row(
-                              children: const [
-                                Icon(Icons.settings,size: 25,color: Colors.grey),  // Aquí puedes cambiar Icons.person por el icono que prefieras
-                                SizedBox(width: 10), // Añade un espacio entre el icono y el texto
-                                Text('Settings',style: TextStyle(fontSize: 25),),
-                              ],
-                            ),
-                            onTap: (){
-                              Navigator.push(context, MaterialPageRoute(builder: (context) => SettingsScreen()));
-                            },
-                          ),
-                          ListTile(
-                            title:Row(
-                              children: const [
-                                Icon(Icons.logout,size: 25,color: Colors.red),  // Aquí puedes cambiar Icons.person por el icono que prefieras
-                                SizedBox(width: 10), // Añade un espacio entre el icono y el texto
-                                Text('Logout',style: TextStyle(fontSize: 25,color: Colors.red),),
-                              ],
-                            ),
-                            onTap: (){
-                              removeToken();
-                              removeUserData();
-                              Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
-                              //Navigator.push(context, MaterialPageRoute(builder: (context) => ListImagesLikeScreen()));
-                            },
-                          ),
+                    ListTile(
+                      title:Row(
+                        children: const [
+                          Icon(Icons.person,size: 45),  // Aquí puedes cambiar Icons.person por el icono que prefieras
+                          SizedBox(width: 10), // Añade un espacio entre el icono y el texto
+                          Text('Perfil',style: TextStyle(fontSize: 25),),
                         ],
                       ),
-                    )
-                ),
-              ]
-          )
-      ),
-      appBar: AppBar(
-        bottom: TabBar(
-          onTap: (index) {
-            // Cambia el índice de la pestaña cuando se selecciona una nueva pestaña
-            setState(() {
-              _currentTabIndex = index;
-              _refresh();
-            });
-          },
-          tabs: const [
-            Tab(
-              text: "Siguiendo",
-            ),
-            Tab(
-              text: "Todos",
-            )
-          ],
-        ),
-        title: const Text('FastGallery'),
-        actions: <Widget>[
-          IconButton(
-            icon: Icon(Icons.search),
-            onPressed: () {
-              // Implementa la lógica de búsqueda aquí
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => SearchListScreen()),
-              );
-              //showSearch(context: context, delegate: CustomSearchDelegate());
-            },
+                      onTap: (){
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => ProfileScreen(id_user: id_user)));
+                      },
+                    ),
+                    ListTile(
+                      title:Row(
+                        children: const [
+                          Icon(Icons.star,size: 45,color: Colors.amber),  // Aquí puedes cambiar Icons.person por el icono que prefieras
+                          SizedBox(width: 10), // Añade un espacio entre el icono y el texto
+                          Text('Favoritos',style: TextStyle(fontSize: 25),),
+                        ],
+                      ),
+                      onTap: (){
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => ListImagesLikeScreen()));
+                      },
+
+                    ),
+                    ListTile(
+                      title:Row(
+                        children: const [
+                          Icon(Icons.supervised_user_circle_sharp,size: 45,color: Colors.blue),  // Aquí puedes cambiar Icons.person por el icono que prefieras
+                          SizedBox(width: 10), // Añade un espacio entre el icono y el texto
+                          Text('Following users',style: TextStyle(fontSize: 20),),
+                        ],
+                      ),
+                      onTap: (){
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => ListUserFollowScreen()));
+                      },
+                    ),
+                    ListTile(
+                      title:Row(
+                        children: const [
+                          Icon(Icons.mail,size: 45,color: Colors.grey),  // Aquí puedes cambiar Icons.person por el icono que prefieras
+                          SizedBox(width: 10), // Añade un espacio entre el icono y el texto
+                          Text('Mensajes',style: TextStyle(fontSize: 25),),
+                        ],
+                      ),
+                      onTap: (){
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => MessageListScreen()));
+                      },
+
+                    ),
+                    Expanded(
+                        child: Align(
+                          alignment: Alignment.bottomLeft,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: <Widget>[
+                              ListTile(
+                                title:Row(
+                                  children: const [
+                                    Icon(Icons.settings,size: 25,color: Colors.grey),  // Aquí puedes cambiar Icons.person por el icono que prefieras
+                                    SizedBox(width: 10), // Añade un espacio entre el icono y el texto
+                                    Text('Settings',style: TextStyle(fontSize: 25),),
+                                  ],
+                                ),
+                                onTap: (){
+                                  Navigator.push(context, MaterialPageRoute(builder: (context) => SettingsScreen()));
+                                },
+                              ),
+                              ListTile(
+                                title:Row(
+                                  children: const [
+                                    Icon(Icons.logout,size: 25,color: Colors.red),  // Aquí puedes cambiar Icons.person por el icono que prefieras
+                                    SizedBox(width: 10), // Añade un espacio entre el icono y el texto
+                                    Text('Logout',style: TextStyle(fontSize: 25,color: Colors.red),),
+                                  ],
+                                ),
+                                onTap: (){
+                                  removeToken();
+                                  removeUserData();
+                                  Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
+                                  //Navigator.push(context, MaterialPageRoute(builder: (context) => ListImagesLikeScreen()));
+                                },
+                              ),
+                            ],
+                          ),
+                        )
+                    ),
+                  ]
+              )
           ),
-        ],
-      ),
-      body:  TabBarView(children: [
-        imageListFollow(),
-        imageList(),
-      ],) ,
-      floatingActionButton: FloatingActionButton(
-          child: const Icon(Icons.add),
-          tooltip: 'New Post',
-          onPressed: () {
-            Navigator.push(context,
-                MaterialPageRoute(builder: (context) => FormScreen()));
-          }),
-    )  );
+          appBar: GradientAppBar(
+            gradientColors:
+            const <Color>[
+              Color(0xff611de1),
+              Color(0xffa74bc0),
+            ],
+            bottom: TabBar(
+              onTap: (index) {
+                // Cambia el índice de la pestaña cuando se selecciona una nueva pestaña
+                setState(() {
+                  _currentTabIndex = index;
+                  _refresh();
+                });
+              },
+              tabs: const [
+                Tab(
+                  text: "Siguiendo",
+                ),
+                Tab(
+                  text: "Todos",
+                )
+              ],
+            ),
+            title: Text('FastGallery'),
+            actions: <Widget>[
+              IconButton(
+                icon: Icon(Icons.search),
+                onPressed: () {
+                  // Implementa la lógica de búsqueda aquí
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => SearchListScreen()),
+                  );
+                  //showSearch(context: context, delegate: CustomSearchDelegate());
+                },
+              ),
+            ],
+          ),
+          body:  TabBarView(children: [
+            imageListFollow(),
+            imageList(),
+          ],) ,
+          floatingActionButton: FloatingActionButton(
+              child: const Icon(Icons.add),
+              tooltip: 'New Post',
+              onPressed: () {
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => FormScreen()));
+              }),
+        )  );
   }
 
 
@@ -399,7 +421,7 @@ class _PostsListScreenState extends State<PostsListScreen> {
                       child:Hero(
                           tag:'imageHero${post.id}',
                           child:Image.network(
-                            '${apiService.baseUrl}/static/images_render/${post.image_url_ligere}',
+                            '${_apiService.baseUrl}/static/images_render/${post.image_url_ligere}',
                           ))):
                   ColorFiltered(
                       colorFilter: ColorFilter.mode(Color(0xABD7322F), BlendMode.lighten),
@@ -409,7 +431,7 @@ class _PostsListScreenState extends State<PostsListScreen> {
                           child:Hero(
                               tag:'imageHero${post.id}',
                               child:Image.network(
-                                '${apiService.baseUrl}/static/images_render/${post.image_url_ligere}',)
+                                '${_apiService.baseUrl}/static/images_render/${post.image_url_ligere}',)
                           )
                       )
                   ),

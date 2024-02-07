@@ -33,7 +33,7 @@ class _MessageFormState extends State<MessageForm> {
   Widget build(BuildContext context) {
 
     return  Scaffold(
-      appBar: GradientAppBar(title: "New Message",gradientColors:[
+      appBar: GradientAppBar(title: Text("New Message"),gradientColors:[
         Color(0xff611de1),
         Color(0xffa74bc0),
       ]),

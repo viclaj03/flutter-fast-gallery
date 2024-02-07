@@ -9,11 +9,12 @@ class User{
   int? post_count;
   int? follower_count;
   int? like_counts;
+  DateTime created_at;
 
 
   //favorited_by
 
-  User(this.id,this.name,this.email,this.is_active,this.subscribe,this.post_count,this.follower_count,this.like_counts);
+  User(this.id,this.name,this.email,this.is_active,this.subscribe,this.post_count,this.follower_count,this.like_counts,this.created_at);
   factory User.fromMap(Map<String,dynamic>map)=>User(
       map['id'],
       map['name'],
@@ -22,7 +23,8 @@ class User{
       map['subscribe'],
       map['post_count'],
       map['follower_count'] ?? 0,
-      map['like_counts']
+      map['like_counts'],
+      DateTime.parse(map['created_at'])
   );
 
 

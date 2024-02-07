@@ -1,12 +1,12 @@
 import 'dart:io';
 
-import 'package:fastgalery/model/post.dart';
-import 'package:fastgalery/screens/posts_list.dart';
+
+import 'package:fastgalery/customWidgest/grandient_app_bar.dart';
 import 'package:fastgalery/services/api_services.dart';
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:http/http.dart' as http;
+
 
 
 String titulo = '';
@@ -18,7 +18,7 @@ XFile? _imageFile;
 
 
 
-
+final ApiService _apiService = ApiService();
 
 
 class FormScreen extends StatelessWidget  {
@@ -29,10 +29,13 @@ class FormScreen extends StatelessWidget  {
     return
       Scaffold(
 
-      appBar: AppBar(
+      appBar: GradientAppBar(
         title:  Text("New Post"),
-        backgroundColor: Colors.green[700],
-        foregroundColor: Colors.black,
+          gradientColors:
+          const <Color>[
+            Color(0xff611de1),
+            Color(0xffa74bc0),
+          ]
       ),
       body: const SingleChildScrollView(
         child: formulario(),
@@ -52,7 +55,7 @@ class _formularioState extends State<formulario> {
   final _formKey = GlobalKey<FormState>();
 
   Future<void> _pickImage() async {
-    XFile? selected = await ImagePicker().pickImage(source: ImageSource.gallery);
+    XFile? selected = await ImagePicker().pickImage(source: ImageSource.gallery,);
 
     if (selected != null) {
       setState(() {
@@ -243,12 +246,12 @@ class _formularioState extends State<formulario> {
 
                     if (_imageFile != null) {
                       // Utilizar http.MultipartFile.fromPath para manejar el archivo
-                      print('hOlaaaaaaaaaaaa');
+
                       setState(() {
                         _isSaving = false;
                       });
                       try{
-                        Map<String, dynamic> response = await apiService.postImage(requestBody,_imageFile!);
+                        Map<String, dynamic> response = await _apiService.postImage(requestBody,_imageFile!);
                         print(response);
                         if(!response.isEmpty) {
                           //Navigator.push(context, MaterialPageRoute(

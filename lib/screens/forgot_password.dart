@@ -27,7 +27,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   @override
   Widget build(BuildContext context) {
     return  Scaffold(
-        appBar: GradientAppBar(title: 'Forgot Password',gradientColors: [
+        appBar: GradientAppBar(title: Text('Forgot Password'),gradientColors: [
           Color(0xff611de1),
           Color(0xffa74bc0),
         ]),
@@ -63,7 +63,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
 
   Widget _textMessage(){
-    return Text('Se te enviara un correo con una codigo numerico',style: TextStyle(fontSize: 15),);
+    return Text('Se te enviara un correo con un código numerico',style: TextStyle(fontSize: 15),);
   }
 
   Widget _eMailInput(){

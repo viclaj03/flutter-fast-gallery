@@ -10,8 +10,6 @@ import 'package:fastgalery/providers/comment_data.dart';
 import 'package:fastgalery/providers/post_data.dart';
 import 'package:fastgalery/providers/shared_preferences.dart';
 import 'package:fastgalery/screens/form_post_update.dart';
-import 'package:fastgalery/screens/post_show.dart';
-import 'package:fastgalery/screens/post_show_copia_07_02.dart';
 import 'package:fastgalery/screens/profile.dart';
 
 import 'package:fastgalery/services/api_services.dart';
@@ -21,7 +19,6 @@ import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:full_screen_image/full_screen_image.dart';
 
 import 'package:image_gallery_saver/image_gallery_saver.dart';
-import 'package:intl/intl.dart';
 import 'package:like_button/like_button.dart';
 
 import 'package:readmore/readmore.dart';
@@ -30,7 +27,7 @@ import 'package:dio/dio.dart';
 
 import 'package:path_provider/path_provider.dart';
 
-
+import 'package:intl/intl.dart';
 
 import 'package:flutter/services.dart';
 
@@ -184,138 +181,76 @@ Future<void> deletePost(BuildContext context,Post post, ) async {
 
 
 
-
-class PostScreen extends StatefulWidget {
+class PostScreen extends StatelessWidget {
   final Post _post;
-  const PostScreen(this._post,{super.key});
 
-  @override
-  State<PostScreen> createState() => _PostScreenState(_post);
-}
-
-class _PostScreenState extends State<PostScreen> {
-  final Post _post;
-  final ScrollController _scrollController = ScrollController();
-  final PostData _postData = PostData.fromJson('[]');
-  _PostScreenState(this._post);
-
-
-  @override
-  void initState() {
-    super.initState();
-    _currentPage = 1;
-    _loadData();
-    _scrollController.addListener(_scrollListener);
-    //_searchController.addListener(_onSearchChanged);
-  }
-
-
-  @override
-  void dispose() {
-    _scrollController.dispose();
-
-    super.dispose();
-  }
-
-
-
-  void _scrollListener() {
-    if (_scrollController.position.pixels == _scrollController.position.maxScrollExtent ) {
-      // Llegaste al final de la lista, carga más datos
-      _loadData();
-    }
-  }
-
-  Future<void> _loadData() async {
-
-    try {
-      print('pagina actual -> $_currentPage');
-      final jsonData = await _apiService.getImageListSearch(_currentPage,'${_post.tags},${_post.user.name}');
-      final newData = PostData.fromJson(jsonData);
-      if (newData.getSize() > 0) {
-        setState(() {
-          PostData.addMoreData(_postData, newData);
-          //todo para evitar que aparezca el mismo post
-          _postData.deletePostById(_post.id);
-          _currentPage++;
-        });
-      } else {
-        print('sin posts');
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Ya no hay más posts :(',),showCloseIcon: true,
-            backgroundColor: Colors.red,duration: Duration(seconds: 2),shape: StadiumBorder(),
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
-      }
-    } catch (e) {
-      print('Error al cargar datos: $e');
-    }
-
-  }
-
-
+  const PostScreen(this._post, {Key? key})
+      :super(key: key);
   @override
   Widget build(BuildContext context) {
-    return  Scaffold(
-      extendBodyBehindAppBar: true,
-      appBar: AppBar(
-        iconTheme: const IconThemeData(
-          color: Colors.black,
-          size: 28.0,
-        ),
-        leading: Padding(
-          padding: const EdgeInsets.all(8.0), // Ajusta el espaciado del icono
-          child: Container(
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: Colors.grey.withOpacity(0.5), // Color gris transparente
-            ),
-            child: IconButton(
-              icon: Icon(Icons.arrow_back),
-              onPressed: () {
-                Navigator.pop(context,'backform');
-              },
-              color: Colors.white,
+    //_init();
+    return
+      Scaffold(
+        extendBodyBehindAppBar: true,
+        appBar: AppBar(
+          iconTheme: const IconThemeData(
+            color: Colors.black,
+            size: 28.0,
+          ),
+          leading: Padding(
+            padding: const EdgeInsets.all(8.0), // Ajusta el espaciado del icono
+            child: Container(
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.grey.withOpacity(0.5), // Color gris transparente
+              ),
+              child: IconButton(
+                icon: Icon(Icons.arrow_back),
+                onPressed: () {
+                  Navigator.pop(context,'backform');
+                },
+                color: Colors.white,
+              ),
             ),
           ),
+          backgroundColor: Colors.transparent, // Establece el color de fondo de la AppBar como transparente
+          elevation: 0,
         ),
-        backgroundColor: Colors.transparent, // Establece el color de fondo de la AppBar como transparente
-        elevation: 0,
-      ),
-      body: FutureBuilder(
-        future:   getIdUserAndPost(_post.id),//apiService.getImage(_post.id),
-        builder: (BuildContext context, AsyncSnapshot<Map<String, dynamic>>snapshot) {
-          if (snapshot.hasData) {
-            final userId = snapshot.data!['userId'];
-            final Post _post = snapshot.data!['post'];
-            return
-              CustomScrollView(
-                  controller: _scrollController ,
-                  slivers :[
-                    SliverToBoxAdapter(child: _imageContent(_post,userId,context)),
-                    _ImageList(scrollController: _scrollController, postData: _postData)
-                  ]);
-            //;
-          } else {
-            return const Center(child: CircularProgressIndicator());
-          }
-        },
-      ),
-    );
+        body:
+
+        FutureBuilder(
+          future:   getIdUserAndPost(_post.id),//apiService.getImage(_post.id),
+          builder: (BuildContext context, AsyncSnapshot<Map<String, dynamic>>snapshot) {
+            if (snapshot.hasData) {
+              final userId = snapshot.data!['userId'];
+              final Post _post = snapshot.data!['post'];
+              return _imageContent(_post,userId,context  );
+            } else {
+              return const Center(child: CircularProgressIndicator());
+            }
+          },
+        ),
+      );
   }
-
-
-
 }
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
 
 Widget _imageContent(Post _post, userId, BuildContext context){
-
-  return  Column(
+  return  SingleChildScrollView(child:Column(
     mainAxisAlignment: MainAxisAlignment.start, // Esto alinea los widgets en la parte superior
     crossAxisAlignment: CrossAxisAlignment.center,
     children:  [
@@ -347,9 +282,11 @@ Widget _imageContent(Post _post, userId, BuildContext context){
           labelStyle: TextStyle(color: Colors.white),
         )).toList(),
       ),
-      Divider(color: Colors.black,thickness: 0.8,indent: 20,endIndent: 20,),
+      Divider(color: Colors.black,thickness: 0.8,indent: 20,endIndent: 20,)
+      ,
       ElevatedButton(child: const Text('Show Comments'),
         style:  ElevatedButton.styleFrom(backgroundColor: Colors.red,shape: StadiumBorder()),
+
         onPressed: (){
           showModalBottomSheet(context: context,
               backgroundColor: Colors.transparent,
@@ -370,9 +307,22 @@ Widget _imageContent(Post _post, userId, BuildContext context){
           );
         },
       ),
-    ],
+
+
+    ],)
   );
 }
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -395,7 +345,7 @@ class _CommentListState extends State<CommentList> {
   final postId;
   final userId;
   _CommentListState(this.postId,this.userId);
-
+  int _currentPage = 1;
   void _loadComments(CommentData commentData,int postId) async {
     try {
 
@@ -724,95 +674,6 @@ class ActionBar extends StatelessWidget {
   }
 }
 
-
-///////
-
-
-class _ImageList extends StatefulWidget {
-  final ScrollController scrollController;
-
-  final PostData postData;
-  const _ImageList({
-    Key? key,
-    required this.scrollController,
-
-    required this.postData,
-
-  }) : super(key: key);
-
-  @override
-  _ImageListState createState() => _ImageListState();
-}
-
-class _ImageListState extends State<_ImageList> {
-  @override
-  Widget build(BuildContext context) {
-    return  SliverGrid(
-
-      gridDelegate:  SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: calculateCrossAxisCount(context),
-        crossAxisSpacing: 8.0,
-        mainAxisSpacing: 8.0,
-      ),
-      delegate: SliverChildBuilderDelegate(
-            (BuildContext context, int index) {
-          final post = widget.postData.getPost(index);
-          return PostView(post);
-        },
-        childCount: widget.postData.getSize(),
-      ),
-    );
-  }
-  Widget PostView(Post post){
-    return InkWell(
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          Column(
-            //textDirection: TextDirection.rtl,
-            children: <Widget>[
-              Expanded(
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(10),
-                  child: !post.NSFW?ImageFiltered(
-                      imageFilter: post.NSFW? ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0):ImageFilter.blur(sigmaX: 0, sigmaY: 0),
-                      child:Image.network(
-                        '${_apiService.baseUrl}/static/images_render/${post.image_url_ligere}',)):
-                  ColorFiltered(
-                      colorFilter: ColorFilter.mode(Color(0xABD7322F), BlendMode.lighten),
-                      child:
-                      ImageFiltered(
-                          imageFilter: post.NSFW? ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0):ImageFilter.blur(sigmaX: 0, sigmaY: 0),
-                          child:Image.network(
-                            '${_apiService.baseUrl}/static/images_render/${post.image_url_ligere}',)
-
-                      )
-                  ),
-                ),
-              ),
-              Text(post.title),
-            ],
-          )
-        ],
-      ),
-      onTap: () {
-
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => PostScreen(post)),
-        ).then((result) =>
-        {
-          if(result != null && result is int){
-            setState(() {
-              widget.postData.deletePostById(result);
-            })
-
-          }
-        });
-      },
-    );
-  }
-}
 
 
 

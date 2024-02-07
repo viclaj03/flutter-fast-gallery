@@ -67,7 +67,7 @@ class ShowMessageScreen extends StatelessWidget {
   Widget _message(Message message, BuildContext context,){
     return
       Scaffold(
-        appBar: GradientAppBar(title: message.title,gradientColors: [
+        appBar: GradientAppBar(title: Text(message.title),gradientColors: const [
           Color(0xff611de1),
           Color(0xffa74bc0),
         ]),

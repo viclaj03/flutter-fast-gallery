@@ -1,4 +1,6 @@
 import 'dart:convert';
+import 'dart:io';
+
 
 import 'package:fastgalery/model/post.dart';
 import 'package:fastgalery/model/user.dart';
@@ -10,7 +12,7 @@ import 'package:image_picker/image_picker.dart';
 
 
 class ApiService {
-  final String baseUrl = "http://192.168.1.136:8000" ;
+  final String baseUrl = "http://192.168.1.148:8000" ;
   ApiService();
 
 
@@ -47,7 +49,7 @@ class ApiService {
   Future<int> resgistreUser({required String email,required String username,required String password}) async {
 
     final response = await http.post(
-      Uri.parse('http://192.168.1.136:8000/registre'),
+      Uri.parse('$baseUrl/registre'),
 
       body: {
         'email': email,
@@ -110,6 +112,9 @@ class ApiService {
     );
 
 
+
+
+
     if (response.statusCode == 200) {
       final mensaje =  json.decode(utf8.decode(response.body.codeUnits))['message'];
       return mensaje;
@@ -121,6 +126,24 @@ class ApiService {
   }
 
 
+
+
+  Future<String> getUserFollowList(int page) async {
+    Map<String, String> baseHeaders;
+    final token = await getToken();
+
+    final response = await http.get(Uri.parse('$baseUrl/user-follow?page=$page'),headers: {
+      'Authorization': 'Bearer ' + token!,
+    });
+    print(response.statusCode);
+    print(response.body);
+    if (response.statusCode == 200) {
+
+      return response.body;
+    } else {
+      throw Exception('Error al cargar la lista');
+    }
+  }
 
 
 
@@ -642,6 +665,7 @@ class ApiService {
   Future<Map<String, dynamic>> postImage( Map<String, dynamic> body,XFile file) async {
     final token = await getToken();
     var request =  http.MultipartRequest("POST", Uri.parse('$baseUrl/image/'));//?title=${body['title']}&description=${body['description']}&NSFW=true',));
+
 
     final headers = {
       "Authorization": "Bearer $token",

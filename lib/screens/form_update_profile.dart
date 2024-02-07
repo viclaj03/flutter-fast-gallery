@@ -23,7 +23,7 @@ class FormUpdatePorfileScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return  Scaffold(
       appBar: GradientAppBar(
-        title: "Editando  ${user.name}  ",
+        title: Text("Editando  ${user.name}  "),
         gradientColors: const <Color>[
           Color(0xff611de1),
           Color(0xffa74bc0),

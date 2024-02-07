@@ -19,5 +19,18 @@ class UserData{
 
   }
 
+  static void addMoreData(UserData existingData, UserData newData) {
+    existingData._users.addAll(newData._users);
+  }
+
+
+  User getPost(int index)=>_users[index];
+  int getSize()=> _users.length;
+  List<User> getPosts()=>_users;
+
+  void Clear(){
+    _users.clear();
+  }
+
   List<User> get users => _users;
 }

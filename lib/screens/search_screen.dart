@@ -2,6 +2,7 @@
 
 import 'dart:ui';
 
+import 'package:fastgalery/customWidgest/grandient_app_bar.dart';
 import 'package:fastgalery/model/post.dart';
 import 'package:fastgalery/providers/post_data.dart';
 import 'package:fastgalery/screens/form_post.dart';
@@ -19,7 +20,7 @@ int _currentPage = 1;
 int calculateCrossAxisCount(BuildContext context) {
   double screenWidth = MediaQuery.of(context).size.width;
 
-  if (screenWidth < 400) {
+  if (screenWidth < 300) {
     return 1; // Dispositivos muy pequeños, una sola columna
   } else if (screenWidth < 600) {
     return 2; // Dispositivos pequeños, dos columnas
@@ -87,10 +88,7 @@ class _SearchListScreenState extends State<SearchListScreen> {
   void _scrollListener() {
     if (_scrollController.position.pixels == _scrollController.position.maxScrollExtent ) {
       // Llegaste al final de la lista, carga más datos
-      print(99);
       _loadData();
-    } else {
-      print('object');
     }
   }
 
@@ -133,7 +131,12 @@ class _SearchListScreenState extends State<SearchListScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
 
-      appBar: AppBar(
+      appBar: GradientAppBar(
+        gradientColors:
+        const <Color>[
+          Color(0xff611de1),
+          Color(0xffa74bc0),
+        ],
         title: TextField(
           onEditingComplete: _onSearchChanged,
           controller: _searchController,

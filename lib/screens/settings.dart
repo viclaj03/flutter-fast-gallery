@@ -19,7 +19,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: GradientAppBar(title: 'Settings',gradientColors: <Color>[
+      appBar: GradientAppBar(title: Text('Settings'),
+        gradientColors: <Color>[
         Color(0xff611de1),
         Color(0xffa74bc0),
       ], ),

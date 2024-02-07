@@ -46,7 +46,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
 
     return Scaffold(
-      appBar: GradientAppBar(title: 'FastGallery',
+      appBar: GradientAppBar(title: Text('FastGallery'),
         gradientColors: const [
           Color(0xff611de1),
           Color(0xffa74bc0),

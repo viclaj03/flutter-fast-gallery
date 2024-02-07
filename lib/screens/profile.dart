@@ -17,7 +17,7 @@ import 'package:flutter/material.dart';
 
 
 
-ApiService apiService = ApiService();
+ApiService _apiService = ApiService();
 
 int _currentPage = 1;
 
@@ -28,7 +28,7 @@ int _currentPage = 1;
 
 Future<Map<String, dynamic>> getUserAndIdUser(int id) async {
 
-  final userJson = await apiService.getUserProfile(id);
+  final userJson = await _apiService.getUserProfile(id);
   final userId = await getIdUser();
   User _user = User.fromJson(userJson);
 
@@ -60,9 +60,9 @@ Future<String> getJsonPosts(int user_id,int page) async {
   final actualUserId = await getIdUser();
 
   if(actualUserId == user_id ){
-    posts = await apiService.getMyPosts(page);
+    posts = await _apiService.getMyPosts(page);
   } else {
-    posts = await apiService.getImageListUser(page,user_id);
+    posts = await _apiService.getImageListUser(page,user_id);
   }
 
 
@@ -167,10 +167,12 @@ class profileView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: GradientAppBar(title: user.id == idUser?'My profile':'Profile', gradientColors:  const <Color>[
-        Color(0xff611de1),
-        Color(0xffa74bc0),
-      ]),
+      appBar: GradientAppBar(title: Text(user.id == idUser?'My profile':'Profile'),
+          gradientColors:
+          const <Color>[
+            Color(0xff611de1),
+            Color(0xffa74bc0),
+          ]),
 
       body:CustomScrollView(
         controller: scrollController,
@@ -250,7 +252,7 @@ class _profileBodyState extends State<profileBody> {
           ),
           user.id != idUser?
           ElevatedButton(onPressed: () async{
-            user.subscribe = await  apiService.followUser(user.id);
+            user.subscribe = await  _apiService.followUser(user.id);
 
             if(user.subscribe!){
               user.follower_count = user.follower_count! + 1;
@@ -350,7 +352,7 @@ class _ImageListState extends State<ImageList> {
                       child:Hero(
                           tag:'imageHero${post.id}',
                           child:Image.network(
-                            '${apiService.baseUrl}/static/images_render/${post.image_url_ligere}',
+                            '${_apiService.baseUrl}/static/images_render/${post.image_url_ligere}',
                           ))):
                   ColorFiltered(
                       colorFilter: ColorFilter.mode(Color(0xABD7322F), BlendMode.lighten),
@@ -360,7 +362,7 @@ class _ImageListState extends State<ImageList> {
                           child:Hero(
                               tag:'imageHero${post.id}',
                               child:Image.network(
-                                '${apiService.baseUrl}/static/images_render/${post.image_url_ligere}',)
+                                '${_apiService.baseUrl}/static/images_render/${post.image_url_ligere}',)
                           )
                       )
                   ),
@@ -384,7 +386,7 @@ class _ImageListState extends State<ImageList> {
             })
 
           }
-        });;
+        });
       },
     );
   }

@@ -28,7 +28,7 @@ class _MessageListScreenState extends State<MessageListScreen> {
 
       Scaffold(
         appBar: GradientAppBar(
-          title: 'Message',
+          title: Text('Message'),
           gradientColors: [
             Color(0xff611de1),
             Color(0xffa74bc0),
@@ -119,7 +119,6 @@ class _ListMessagesState extends State<ListMessages> {
 
   @override
   Widget build(BuildContext context) {
-
     return
       Column(
         children: <Widget>[
@@ -176,8 +175,6 @@ class _ListMessagesState extends State<ListMessages> {
 
         ],
       );
-
-
   }
 
 
@@ -203,8 +200,6 @@ class _ListMessagesState extends State<ListMessages> {
                         message.reed = true;
                     })
                   }
-
-          
         }),
 
         trailing:  Icon(message.reed ?Icons.mark_email_read:Icons.mark_email_unread,color:message.reed ?Colors.grey:Colors.yellow),

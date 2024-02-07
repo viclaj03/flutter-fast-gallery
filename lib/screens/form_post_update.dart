@@ -1,15 +1,16 @@
 import 'dart:io';
 
+import 'package:fastgalery/customWidgest/grandient_app_bar.dart';
 import 'package:fastgalery/model/post.dart';
 import 'package:fastgalery/screens/post_show.dart';
-import 'package:fastgalery/screens/posts_list.dart';
+
 import 'package:fastgalery/services/api_services.dart';
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
 
-ApiService apiService = new ApiService();
+ApiService _apiService =  ApiService();
 String titulo = '';
 String descripcion = '';
 bool nsfw = false;
@@ -31,10 +32,13 @@ class FormUpadateScreen extends StatelessWidget  {
   Widget build(BuildContext context) {
     return
       Scaffold(
-        appBar: AppBar(
-          title:  Text("actulizando: ${_post.title}"),
-          backgroundColor: Colors.green[700],
-          foregroundColor: Colors.black,
+        appBar: GradientAppBar(
+          title:  Text("Actualizando: ${_post.title}"),gradientColors:
+             const <Color>[
+              Color(0xff611de1),
+              Color(0xffa74bc0),
+            ],
+
         ),
         body:  SingleChildScrollView(
           child: Formulario( _post,old_rute),
@@ -80,7 +84,7 @@ class _FormularioState extends State<Formulario> {
 
 
               Image.network(
-                '${apiService.baseUrl}/static/images/${post.image_url}',
+                '${_apiService.baseUrl}/static/images/${post.image_url}',
                 //height: 280.0,
                 //fit: BoxFit.cover,
               ),
@@ -236,7 +240,7 @@ class _FormularioState extends State<Formulario> {
                           _isSaving = false;
                         });
                         try{
-                          Map<String, dynamic> response = await apiService.updatePost(requestBody,post.id);
+                          Map<String, dynamic> response = await _apiService.updatePost(requestBody,post.id);
                           print(response);
                           if(!response.isEmpty) {
                             //Navigator.push(context, MaterialPageRoute(

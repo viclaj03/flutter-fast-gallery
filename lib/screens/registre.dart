@@ -47,7 +47,7 @@ class _RegistreScreenState extends State<RegistreScreen> {
   Widget build(BuildContext context) {
 
     return  Scaffold(
-        appBar: GradientAppBar(title: 'Registre',
+        appBar: GradientAppBar(title: const Text('Registre'),
         gradientColors: const [
           Color(0xff611de1),
           Color(0xffa74bc0),
@@ -189,7 +189,6 @@ class _RegistreScreenState extends State<RegistreScreen> {
               int id = await _apiService.resgistreUser(email:  _emailInput,username: _username ,password: _password);
 
               if(!context.mounted) return;
-
 
 
               Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=>PostsListScreen(id)),(route) => false);

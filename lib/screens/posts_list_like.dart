@@ -22,7 +22,7 @@ int _currentPage = 1;
 int calculateCrossAxisCount(BuildContext context) {
   double screenWidth = MediaQuery.of(context).size.width;
 
-  if (screenWidth < 400) {
+  if (screenWidth < 300) {
     return 1; // Dispositivos muy pequeños, una sola columna
   } else if (screenWidth < 600) {
     return 2; // Dispositivos pequeños, dos columnas
