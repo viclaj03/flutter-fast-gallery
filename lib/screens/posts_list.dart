@@ -91,13 +91,19 @@ class PostsListScreen extends StatefulWidget {
 
 }
 
-class _PostsListScreenState extends State<PostsListScreen> {
+class _PostsListScreenState extends State<PostsListScreen> with SingleTickerProviderStateMixin {
   final ScrollController _scrollController = ScrollController();
   final PostData _postData = PostData.fromJson('[]');
   final PostData _postDataFollow = PostData.fromJson('[]');
+  late final TabController _tabController;
+
+
+
   int id_user;
   _PostsListScreenState(this.id_user);
   int _currentTabIndex = 1;
+
+
 
   // Página inicial
 
@@ -107,13 +113,19 @@ class _PostsListScreenState extends State<PostsListScreen> {
     _currentPage = 1;
     _loadData();
     _scrollController.addListener(_scrollListener);
+    _tabController = TabController(length: 2, vsync: this,initialIndex: 1);
   }
 
   @override
   void dispose() {
     _scrollController.dispose();
+    _tabController.dispose();
     super.dispose();
   }
+
+
+
+
 
   void _scrollListener() {
     if (_scrollController.position.pixels == _scrollController.position.maxScrollExtent ) {
@@ -177,21 +189,45 @@ class _PostsListScreenState extends State<PostsListScreen> {
 
   }
 
-  Future<void> _refresh() async {
-    // Lógica de actualización al hacer "pull-to-refresh"
+
+
+
+
+_refreshs()  {
+
     _currentPage = 1;
     _currentFollowPage = 1;
     _postData.Clear();
-    _postDataFollow.Clear();// Asegúrate de limpiar la lista actual
-    await _loadData();
+    _postDataFollow.Clear();
+    _loadData();
+  }
+
+
+  Future<void> _refreshAsync() async {
+
+    _currentPage = 1;
+    _currentFollowPage = 1;
+    _postData.Clear();
+    _postDataFollow.Clear();
+     _loadData();
   }
 
 
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(length: 2, initialIndex: 1,
-        child:Scaffold(
 
+    _tabController.addListener(() {
+      if (_tabController.index != _currentTabIndex) {
+        // Solo si el índice actual del TabController es diferente al índice actual almacenado
+        setState(() {
+          _currentTabIndex = _tabController.index; // Actualiza el índice actual
+          _refreshs(); // Llama a tu función de actualización de datos
+        });
+      }
+    });
+
+
+    return Scaffold(
           drawer: Drawer(
               child:Column(
                 // Important: Remove any padding from the ListView.
@@ -206,11 +242,6 @@ class _PostsListScreenState extends State<PostsListScreen> {
                             begin: Alignment.topLeft,
                             end: Alignment(0.8, 1),
                             colors: <Color>[
-                              /*
-                          Color(0xff1f005c),
-                          Color(0xff002d60),
-                          Color(0xff015f87),
-                          Color(0xff4bb6c0),*/
                               Color(0xff611de1),
                               Color(0xffa74bc0),
                             ],tileMode: TileMode.mirror),
@@ -316,13 +347,11 @@ class _PostsListScreenState extends State<PostsListScreen> {
               Color(0xffa74bc0),
             ],
             bottom: TabBar(
-              onTap: (index) {
-                // Cambia el índice de la pestaña cuando se selecciona una nueva pestaña
-                setState(() {
-                  _currentTabIndex = index;
-                  _refresh();
-                });
-              },
+              isScrollable: false,
+              physics: const NeverScrollableScrollPhysics(),
+              controller: _tabController,
+
+
               tabs: const [
                 Tab(
                   text: "Siguiendo",
@@ -347,7 +376,9 @@ class _PostsListScreenState extends State<PostsListScreen> {
               ),
             ],
           ),
-          body:  TabBarView(children: [
+          body:  TabBarView(
+            controller: _tabController,
+            children: [
             imageListFollow(),
             imageList(),
           ],) ,
@@ -358,14 +389,14 @@ class _PostsListScreenState extends State<PostsListScreen> {
                 Navigator.push(context,
                     MaterialPageRoute(builder: (context) => FormScreen()));
               }),
-        )  );
+        )  ;
   }
 
 
 
   Widget imageListFollow(){
     return RefreshIndicator(
-      onRefresh: _refresh,
+      onRefresh: _refreshAsync,
       child: GridView.builder(
         physics: AlwaysScrollableScrollPhysics(),
         gridDelegate:  SliverGridDelegateWithFixedCrossAxisCount(
@@ -378,6 +409,7 @@ class _PostsListScreenState extends State<PostsListScreen> {
         itemBuilder: (context, index) {
           final post = _postDataFollow.getPost(index);
           return  imageView(post);
+
         },
       ),
     );
@@ -386,7 +418,7 @@ class _PostsListScreenState extends State<PostsListScreen> {
 
   Widget imageList(){
     return RefreshIndicator(
-      onRefresh: _refresh,
+      onRefresh: _refreshAsync,
       child: GridView.builder(
         physics: AlwaysScrollableScrollPhysics(),
         gridDelegate:  SliverGridDelegateWithFixedCrossAxisCount(

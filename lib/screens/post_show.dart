@@ -38,6 +38,8 @@ import 'package:flutter/services.dart';
 
 int _currentPage = 1;
 
+int _currentPageComment = 1;
+
 
 final ApiService _apiService = ApiService();
 
@@ -391,22 +393,27 @@ class CommentList extends StatefulWidget {
 class _CommentListState extends State<CommentList> {
   final ScrollController _scrollController = ScrollController();
   final CommentData _commentData = CommentData.fromJson('[]');
+
+
+
   bool isKeyboardVisible = false;
   final postId;
   final userId;
   _CommentListState(this.postId,this.userId);
 
+
+
   void _loadComments(CommentData commentData,int postId) async {
     try {
 
-      final jsonData = await _apiService.getComments(postId, _currentPage);
+      final jsonData = await _apiService.getComments(postId, _currentPageComment);
 
       if(!jsonData.isEmpty) {
         final newData = CommentData.fromJson(jsonData);
         setState(() {
           commentData.addData(newData.getComments());
         });
-        _currentPage++;
+        _currentPageComment++;
       }
 
     } catch (e) {
@@ -420,16 +427,17 @@ class _CommentListState extends State<CommentList> {
     if(mounted) {
       _loadComments(_commentData, postId);
       _scrollController.addListener(_scrollListener);
+      _currentPageComment = 1;
 
+  }
 
-      KeyboardVisibilityController().onChange.listen((bool visible) {
-        if (mounted) {
-          setState(() {
-            isKeyboardVisible = visible;
-          });
-        }
-      });
-    }
+    KeyboardVisibilityController().onChange.listen((bool visible) {
+      if (mounted) {
+        setState(() {
+          isKeyboardVisible = visible;
+        });
+      }
+    });
   }
 
   void _scrollListener() {
