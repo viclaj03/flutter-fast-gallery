@@ -3,12 +3,14 @@ import 'package:fastgalery/customWidgest/grandient_app_bar.dart';
 import 'package:fastgalery/screens/post_show.dart';
 
 import 'package:fastgalery/screens/posts_list.dart';
+import 'package:fastgalery/screens/terms_and_conditions.dart';
 import 'package:fastgalery/services/api_services.dart';
 import 'package:flutter/material.dart';
 
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:fastgalery/providers/shared_preferences.dart';
+import 'package:fastgalery/extesionFunctions/extension_function.dart';
 
 
 String _username = "";
@@ -18,6 +20,8 @@ String _emailInput = "";
 String _password = "";
 
 bool _invisiblePassword = true;
+
+bool _isChecked = false;
 
 ApiService _apiService = ApiService();
 
@@ -73,6 +77,7 @@ class _RegistreScreenState extends State<RegistreScreen> {
                 _usernamInput(),
                 _eMailInput(),
                 _passwordInput(),
+                _acceptTermsAndConditions(),
                 _registreButton()
               ],
             ),
@@ -175,6 +180,30 @@ class _RegistreScreenState extends State<RegistreScreen> {
     );
   }
 
+  Widget _acceptTermsAndConditions(){
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      verticalDirection: VerticalDirection.up,
+      children: <Widget>[
+        Checkbox(
+            value: _isChecked,
+            onChanged: (value){
+              setState(() {
+                _isChecked = value!;
+              });
+            }),
+        TextButton(
+            onPressed: (){
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => TermsAndConditiosnScreen()),
+              );
+            },
+            child: Text('Aceptar terminos y condiciones'))
+      ],
+    );
+  }
+
 // Reemplaza la lógica del botón de inicio de sesión con la llamada a la API
   Widget _registreButton(){
     return Container(
@@ -183,27 +212,45 @@ class _RegistreScreenState extends State<RegistreScreen> {
         child: const Text('Registre'),
         onPressed: () async {
           if (_formKey.currentState!.validate()) {
-            // Llamada a la API para autenticar al usuario y obtener el token
-            try {
-              // Realiza la solicitud de inicio de sesión a la API y obtén el token
-              int id = await _apiService.resgistreUser(email:  _emailInput,username: _username ,password: _password);
 
-              if(!context.mounted) return;
+            if(_isChecked) {
+              // Llamada a la API para autenticar al usuario y obtener el token
+              try {
+                // Realiza la solicitud de inicio de sesión a la API y obtén el token
+                int id = await _apiService.resgistreUser(email: _emailInput,
+                    username: _username,
+                    password: _password);
+
+                if (!context.mounted) return;
 
 
-              Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=>PostsListScreen(id)),(route) => false);
-              //Navigator.push(context, MaterialPageRoute(builder: (context)=>PostScreen()));
-              // Muestra un mensaje de bienvenida con el token
+                Navigator.pushAndRemoveUntil(context, MaterialPageRoute(
+                    builder: (context) => PostsListScreen(id)), (
+                    route) => false);
+                //Navigator.push(context, MaterialPageRoute(builder: (context)=>PostScreen()));
+                // Muestra un mensaje de bienvenida con el token
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('¡Bienvenido! '),
+                    backgroundColor: Colors.green,),
+                );
+
+                // Puedes navegar a otra pantalla o realizar acciones adicionales aquí
+              } on Exception catch (error) {
+                print(error);
+                // Muestra un mensaje de error si la autenticación falla
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                      content: Text('Error de Registro: ${error.getMessage}'),
+                      backgroundColor: Colors.red,
+                      duration: Duration(seconds: 4)),
+                );
+              }
+            } else {
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('¡Bienvenido! '), backgroundColor: Colors.green,),
-              );
-
-              // Puedes navegar a otra pantalla o realizar acciones adicionales aquí
-            } catch (error) {
-              print(error);
-              // Muestra un mensaje de error si la autenticación falla
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Error de inicio de sesión: $error'), backgroundColor: Colors.red,duration: Duration(seconds: 4)),
+                SnackBar(
+                    content: Text('Debe aceptar los terminos y condiciones'),
+                    backgroundColor: Colors.red,
+                    duration: Duration(seconds: 4)),
               );
             }
           }

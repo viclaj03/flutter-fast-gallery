@@ -2,6 +2,7 @@
 
 import 'dart:ui';
 
+import 'package:fastgalery/customWidgest/grandient_app_bar.dart';
 import 'package:fastgalery/model/post.dart';
 import 'package:fastgalery/providers/post_data.dart';
 import 'package:fastgalery/screens/form_post.dart';
@@ -117,12 +118,15 @@ class _ListImagesLikeScreenState extends State<ListImagesLikeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
+      appBar: GradientAppBar(
         title: Text('Favoritos'),
-        backgroundColor: Colors.amber,
+          gradientColors:const [
+            Color(0xff611de1),
+            Color(0xffa74bc0),
+          ]
       ),
       body:   imageList(),
-      backgroundColor: Colors.grey,
+
     );
   }
 

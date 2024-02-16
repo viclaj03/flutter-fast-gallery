@@ -102,7 +102,7 @@ class _MessageFormState extends State<MessageForm> {
     child:TextFormField(
       initialValue: '',
       decoration:  InputDecoration(
-        labelText: "Asunto del mansaje",
+        labelText: "Asunto del mensaje",
           hintText: 'Asunto del mensaje',
           border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10.0)
@@ -128,8 +128,8 @@ class _MessageFormState extends State<MessageForm> {
         margin: EdgeInsets.only(bottom: 16.0),
       child:TextFormField(
       decoration:  InputDecoration(
-        labelText: "Contenido del mansaje",
-          hintText: 'Contenido del mansaje',
+        labelText: "Contenido del mensaje",
+          hintText: 'Contenido del mensaje',
           border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10.0)
           )

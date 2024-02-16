@@ -119,8 +119,8 @@ class _formularioState extends State<formulario> {
               if (value == null || value.isEmpty) {
                 return 'El Titulo es obligatorio';
               }
-              if (value.length >= 250) {
-                return 'debes contener menos de 250 cracteres';
+              if (value.length < 5 || value.length >= 100 ) {
+                return 'debe contener menos de 100 caracteres y mas de 5,\n Actual: ${value.length} ';
               }
               titulo = value;
               return null;

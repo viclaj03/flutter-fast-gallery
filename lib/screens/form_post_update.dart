@@ -110,8 +110,8 @@ class _FormularioState extends State<Formulario> {
                     if (value == null || value.isEmpty) {
                       return 'El Titulo es obligatorio';
                     }
-                    if (value.length < 5 || value.length >= 50) {
-                      return 'debes contener menos de 50 cracteres y mas de 5, Actual: ${value.length} ';
+                    if (value.length < 5 || value.length >= 100 ) {
+                      return 'debes contener menos de 100 caracteres y mas de 5,\n Actual: ${value.length} ';
                     }
                     titulo = value;
                     return null;
@@ -143,7 +143,7 @@ class _FormularioState extends State<Formulario> {
                   //todo limitar el enumero de linea
                   int newlines = value.split('\n').length - 1;
                   if (newlines > 2) {
-                    return 'maximo 2 saltos de lineas';
+                    return 'maximo  saltos de lineas';
                   }
                   descripcion = value;
                   return null;

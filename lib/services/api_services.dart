@@ -68,7 +68,7 @@ class ApiService {
     } else {
       final respuesta =  json.decode(response.body);
       // Si la solicitud falla, lanza una excepción
-      throw Exception('Error de autenticación T.T ${respuesta['detail']}');
+      throw Exception('${respuesta['detail']}');
     }
   }
 
@@ -171,7 +171,7 @@ class ApiService {
     Map<String, String> baseHeaders;
     final token = await getToken();
 
-    final response = await http.get(Uri.parse('$baseUrl/image/?page=$page'),headers: {
+    final response = await http.get(Uri.parse('$baseUrl/post/?page=$page'),headers: {
       'Authorization': 'Bearer ' + token!,
     });
     if (response.statusCode == 200) {
@@ -284,7 +284,7 @@ class ApiService {
     Map<String, String> baseHeaders;
     final token = await getToken();
 
-    final response = await http.get(Uri.parse('$baseUrl/image/get-following-post?page=$page'),headers: {
+    final response = await http.get(Uri.parse('$baseUrl/post/get-following-post?page=$page'),headers: {
       'Authorization': 'Bearer ' + token!,
     });
     if (response.statusCode == 200) {
@@ -300,7 +300,7 @@ class ApiService {
     Map<String, String> baseHeaders;
     final token = await getToken();
 
-    final response = await http.get(Uri.parse('$baseUrl/image/search?page=$page&search_content=$search'),headers: {
+    final response = await http.get(Uri.parse('$baseUrl/post/search?page=$page&search_content=$search'),headers: {
       'Authorization': 'Bearer ' + token!,
     });
     print(response.statusCode);
@@ -320,7 +320,7 @@ class ApiService {
     Map<String, String> baseHeaders;
     final token = await getToken();
 
-    final response = await http.get(Uri.parse('$baseUrl/image/get-favorites?page=$page'),headers: {
+    final response = await http.get(Uri.parse('$baseUrl/post/get-favorites?page=$page'),headers: {
       'Authorization': 'Bearer ' + token!,
     });
     print(response.statusCode);
@@ -338,7 +338,7 @@ class ApiService {
     Map<String, String> baseHeaders;
     final token = await getToken();
 
-    final response = await http.get(Uri.parse('$baseUrl/image/user-post/$user?page=$page'),headers: {
+    final response = await http.get(Uri.parse('$baseUrl/post/user-post/$user?page=$page'),headers: {
       'Authorization': 'Bearer ' + token!,
     });
     print(response.statusCode);
@@ -357,7 +357,7 @@ class ApiService {
     Map<String, String> baseHeaders;
     final token = await getToken();
 
-    final response = await http.get(Uri.parse('$baseUrl/image/my-posts?page=$page'),headers: {
+    final response = await http.get(Uri.parse('$baseUrl/post/my-posts?page=$page'),headers: {
       'Authorization': 'Bearer ' + token!,
     });
     print(response.statusCode);
@@ -378,7 +378,7 @@ class ApiService {
     Map<String, String> baseHeaders;
     final token = await getToken();
 
-    final response = await http.get(Uri.parse('$baseUrl/image/get/$id'),headers: {
+    final response = await http.get(Uri.parse('$baseUrl/post/get/$id'),headers: {
       'Authorization': 'Bearer ' + token!,
     });
     print(response.statusCode);
@@ -415,7 +415,7 @@ class ApiService {
   Future<String> deleteImage(int id) async {
 
     final token = await getToken();
-    final response = await http.delete(Uri.parse('$baseUrl/image/$id'),headers: {
+    final response = await http.delete(Uri.parse('$baseUrl/post/$id'),headers: {
       'Authorization': 'Bearer ' + token!,
     });
     if (response.statusCode == 200) {
@@ -664,7 +664,7 @@ class ApiService {
 
   Future<Map<String, dynamic>> postImage( Map<String, dynamic> body,XFile file) async {
     final token = await getToken();
-    var request =  http.MultipartRequest("POST", Uri.parse('$baseUrl/image/'));//?title=${body['title']}&description=${body['description']}&NSFW=true',));
+    var request =  http.MultipartRequest("POST", Uri.parse('$baseUrl/post'));//?title=${body['title']}&description=${body['description']}&NSFW=true',));
 
 
     final headers = {
@@ -707,7 +707,7 @@ class ApiService {
 
   Future<Map<String, dynamic>> updatePost( Map<String, dynamic> body, int id) async {
     final token = await getToken();
-    var request =  http.MultipartRequest("PUT", Uri.parse('$baseUrl/image/$id'));
+    var request =  http.MultipartRequest("PUT", Uri.parse('$baseUrl/post/$id'));
 
     final headers = {
       "Authorization": "Bearer $token",
@@ -738,7 +738,7 @@ class ApiService {
 
   Future<bool> likePost(Post post) async{
     final token = await getToken();
-    var request =  http.MultipartRequest("POST", Uri.parse('$baseUrl/image/add-favorite/${post.id}'));
+    var request =  http.MultipartRequest("POST", Uri.parse('$baseUrl/post/add-favorite/${post.id}'));
 
     final headers = {
       "Authorization": "Bearer $token",

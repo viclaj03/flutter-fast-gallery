@@ -195,10 +195,10 @@ class _PostsListScreenState extends State<PostsListScreen> with SingleTickerProv
 
 _refreshs()  {
 
-    _currentPage = 1;
-    _currentFollowPage = 1;
-    _postData.Clear();
-    _postDataFollow.Clear();
+    //_currentPage = 1;
+    //_currentFollowPage = 1;
+    //_postData.Clear();
+   // _postDataFollow.Clear();
     _loadData();
   }
 

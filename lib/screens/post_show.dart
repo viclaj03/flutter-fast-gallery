@@ -206,6 +206,7 @@ class _PostScreenState extends State<PostScreen> {
   void initState() {
     super.initState();
     _currentPage = 1;
+    _currentPageComment = 1;
     _loadData();
     _scrollController.addListener(_scrollListener);
     //_searchController.addListener(_onSearchChanged);
@@ -241,15 +242,6 @@ class _PostScreenState extends State<PostScreen> {
           _postData.deletePostById(_post.id);
           _currentPage++;
         });
-      } else {
-        print('sin posts');
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Ya no hay más posts :(',),showCloseIcon: true,
-            backgroundColor: Colors.red,duration: Duration(seconds: 2),shape: StadiumBorder(),
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
       }
     } catch (e) {
       print('Error al cargar datos: $e');
@@ -424,10 +416,11 @@ class _CommentListState extends State<CommentList> {
   @override
   void initState() {
     super.initState();
+    _currentPageComment = 1;
     if(mounted) {
       _loadComments(_commentData, postId);
       _scrollController.addListener(_scrollListener);
-      _currentPageComment = 1;
+
 
   }
 
