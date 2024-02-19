@@ -51,27 +51,10 @@ class MyApp extends StatelessWidget {
         brightness: Brightness.light,
       ),
       themeMode: ThemeMode.system,
-      home: /*FutureBuilder<String?>(
-        future: usernameLogin(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            // Mientras espera, puedes mostrar un indicador de carga, por ejemplo.
-            return CircularProgressIndicator();
-          } else if (snapshot.hasError) {
-            // Si hay un error, puedes manejarlo de acuerdo a tus necesidades.
-            return Center(child: Text('Error: ${snapshot.error}'));
-          } else {
-            // Dependiendo del resultado, muestra LoginScreen o PostsListScreen.
-            final username = snapshot.data;
-            return username != null ? PostsListScreen() : LoginScreen();
-          }
-        },
-      ),*/HomeScreen(),
+      home: HomeScreen(),
       initialRoute: '/',
       routes: {
-
         '/login': (context)=> const LoginScreen(),
-        //'/PostsListScreen': (context) => PostsListScreen(1),
       },
     );
   }
