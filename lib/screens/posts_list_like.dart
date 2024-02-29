@@ -10,10 +10,9 @@ import 'package:fastgalery/screens/post_show.dart';
 import 'package:fastgalery/services/api_services.dart';
 import 'package:flutter/material.dart';
 
+
+
 ApiService apiService = ApiService();
-
-
-
 int _currentPage = 1;
 
 
@@ -61,11 +60,9 @@ class _ListImagesLikeScreenState extends State<ListImagesLikeScreen> {
     //_searchController.addListener(_onSearchChanged);
   }
 
-
   @override
   void dispose() {
     _scrollController.dispose();
-
     super.dispose();
   }
 
@@ -75,8 +72,6 @@ class _ListImagesLikeScreenState extends State<ListImagesLikeScreen> {
       // Llegaste al final de la lista, carga más datos
 
       _loadData();
-    } else {
-      print('object');
     }
   }
 
@@ -104,7 +99,6 @@ class _ListImagesLikeScreenState extends State<ListImagesLikeScreen> {
     } catch (e) {
       print('Error al cargar datos: $e');
     }
-
   }
 
   Future<void> _refresh() async {

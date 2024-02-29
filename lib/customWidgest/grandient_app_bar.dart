@@ -27,14 +27,14 @@ class GradientAppBar extends StatelessWidget implements PreferredSizeWidget {
         backgroundColor: Colors.transparent,
         elevation: 0,
         bottom: bottom,
-        actions: actions,// Add the bottom widget here
+        actions: actions,
       ),
     );
   }
 
   @override
   Size get preferredSize {
-    // Calculate preferred size including the height of the bottom widget
+    // Calcula el tamaño preferido, incluida la altura del widget inferior
     double appBarHeight = kToolbarHeight + (bottom?.preferredSize.height ?? 0);
     return Size.fromHeight(appBarHeight);
   }

@@ -17,27 +17,20 @@ class ApiService {
 
 
   Future<String> authenticateUser(String email, String password) async {
-
     final response = await http.post(
         Uri.parse('${baseUrl}/login'),
         body:{
-
           'username': email,
           'password': password,
         }
     );
-
     if (response.statusCode == 200) {
       final token =  json.decode(response.body);
       await saveToken(token['access_token']);
-
-
-
       String userData = await getMyUser();
       await saveIdUser(json.decode(userData)['id']);
       await saveEmail(json.decode(userData)['email']);
       await saveUsername(json.decode(userData)['name']);
-
       return userData;
     } else {
 
