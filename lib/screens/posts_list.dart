@@ -454,6 +454,11 @@ _refreshs()  {
                           tag:'imageHero${post.id}',
                           child:Image.network(
                             '${_apiService.baseUrl}/static/images_render/${post.image_url_ligere}',
+                              errorBuilder: (BuildContext context, Object exception, StackTrace? stackTrace) {
+                              // En caso de error, devuelve una imagen de error
+                              return Image.asset('assets/image/not_image.jpg');
+                      },
+
                           ))):
                   ColorFiltered(
                       colorFilter: ColorFilter.mode(Color(0xABD7322F), BlendMode.lighten),
@@ -463,7 +468,15 @@ _refreshs()  {
                           child:Hero(
                               tag:'imageHero${post.id}',
                               child:Image.network(
-                                '${_apiService.baseUrl}/static/images_render/${post.image_url_ligere}',)
+                                '${_apiService.baseUrl}/static/images_render/${post.image_url_ligere}',
+
+                                  errorBuilder: (BuildContext context, Object exception, StackTrace? stackTrace) {
+                                  // En caso de error, devuelve una imagen de error
+                                  return Image.asset('assets/image/not_image.jpg');
+                          },
+
+
+                              )
                           )
                       )
                   ),

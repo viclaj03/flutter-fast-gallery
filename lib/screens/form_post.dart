@@ -272,7 +272,7 @@ class _formularioState extends State<formulario> {
                         );
                       }
                     } else{
-                      print('falata imagen');
+
                       ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text('Falta la imagen'), backgroundColor: Colors.red,showCloseIcon: true,duration: Duration(seconds: 2),));
                     }

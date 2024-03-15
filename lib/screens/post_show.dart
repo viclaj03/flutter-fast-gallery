@@ -422,7 +422,7 @@ class _CommentListState extends State<CommentList> {
       _scrollController.addListener(_scrollListener);
 
 
-  }
+    }
 
     KeyboardVisibilityController().onChange.listen((bool visible) {
       if (mounted) {
@@ -598,15 +598,26 @@ class _ImageShowState extends State<ImageShow> {
     //maxScale: 1.6,
 
     Image.network('${_apiService.baseUrl}/static/images/${post.image_url}',
-        loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
-          if (loadingProgress == null) {
 
-            return Center(child: child);
-          } else {
-            return Image.network('${_apiService.baseUrl}/static/images_render/${post
-                .image_url_ligere}');
-          }
-        })
+      loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
+        if (loadingProgress == null) {
+
+          return Center(child: child);
+        } else {
+          return Image.network('${_apiService.baseUrl}/static/images_render/${post
+              .image_url_ligere}');
+        }
+      },
+
+      errorBuilder: (BuildContext context, Object exception, StackTrace? stackTrace) {
+        // En caso de error, devuelve una imagen de error
+        return Image.asset('assets/image/not_image.jpg');
+      },
+
+
+
+
+    )
     )
 
     );
