@@ -148,10 +148,13 @@ class _PostsListScreenState extends State<PostsListScreen> with SingleTickerProv
         jsonData = await _apiService.getImageList(_currentPage);
         newData = PostData.fromJson(jsonData);
         if (newData.getSize() > 0) {
-          setState(() {
-            PostData.addMoreData(_postData, newData);
-            _currentPage++;
-          });
+          if(mounted){
+            setState(() {
+              PostData.addMoreData(_postData, newData);
+              _currentPage++;
+            });
+          }
+
         } else {
           print('sin posts');
           ScaffoldMessenger.of(context).showSnackBar(
@@ -167,10 +170,12 @@ class _PostsListScreenState extends State<PostsListScreen> with SingleTickerProv
         jsonDataFollow = await _apiService.getImageListByFollowing(_currentFollowPage);
         newDataFollow = PostData.fromJson(jsonDataFollow);
         if ( newDataFollow.getSize() > 0) {
-          setState(() {
-            PostData.addMoreData(_postDataFollow, newDataFollow);
-            _currentFollowPage++;
-          });
+          if(mounted) {
+            setState(() {
+              PostData.addMoreData(_postDataFollow, newDataFollow);
+              _currentFollowPage++;
+            });
+          }
         } else {
 
           ScaffoldMessenger.of(context).showSnackBar(
@@ -474,7 +479,6 @@ _refreshs()  {
                                   // En caso de error, devuelve una imagen de error
                                   return Image.asset('assets/image/not_image.jpg');
                           },
-
 
                               )
                           )

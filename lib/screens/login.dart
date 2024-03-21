@@ -187,8 +187,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Widget _registreButto(){
     return Container(
-
-
         child: ElevatedButton(
           child: const Text('Registre'),
           onPressed:(){

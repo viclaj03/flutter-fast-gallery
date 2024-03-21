@@ -26,10 +26,10 @@ Future<String?> usernameLogin() async{
 
 void main() async {
   //windows 10 falla por esto
-  /*WidgetsFlutterBinding.ensureInitialized();
+  WidgetsFlutterBinding.ensureInitialized();
   await FlutterDownloader.initialize(
       debug: false // Configura esto según tus necesidades (puedes cambiarlo a false en producción)
-  );*/
+  );
 
 
   runApp(MyApp());

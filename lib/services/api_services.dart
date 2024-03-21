@@ -39,7 +39,8 @@ class ApiService {
     }
   }
 
-  Future<int> resgistreUser({required String email,required String username,required String password}) async {
+  Future<int> resgistreUser({required String email,required String username,
+    required String password}) async {
 
     final response = await http.post(
       Uri.parse('$baseUrl/registre'),
@@ -50,8 +51,6 @@ class ApiService {
         'password': password,
       },
     );
-
-
     if (response.statusCode == 200) {
       final token =  json.decode(response.body);
       await saveToken(token['access_token']);
@@ -214,7 +213,8 @@ class ApiService {
     Map<String, String> baseHeaders;
     final token = await getToken();
 
-    final response = await http.get(Uri.parse('$baseUrl/message/${id}'),headers: {
+    final response = await http.get(Uri.parse('$baseUrl/message/${id}'),
+    headers: {
       'Authorization': 'Bearer ' + token!,
     });
     if (response.statusCode == 200) {
